@@ -103,8 +103,8 @@
         // ฟังก์ชันดูดข้อมูลพนักงานรหัส AO-002001
         async function fetchEmployeeData() {
             try {
-                // ระบุพิกัด: ตู้ชื่อ employees > แฟ้มชื่อ AO-002001
-                const docRef = doc(db, "employees", "AO-002001");
+                // ระบุพิกัด: ตู้ชื่อ employees > แฟ้มชื่อ A0-002001
+                const docRef = doc(db, "employees", "A0-002001");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
