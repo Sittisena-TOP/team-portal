@@ -33,8 +33,14 @@
         .admin-form-group { margin-bottom: 15px; }
         .admin-form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
         .admin-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .admin-textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; resize: vertical; }
         .admin-btn { padding: 10px 20px; background-color: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
         .admin-btn:hover { background-color: #059669; }
+        
+        /* ดีไซน์กล่องคู่มือเรียนรู้ */
+        .manual-box { background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .manual-box h3 { margin: 0 0 10px 0; color: #1e293b; }
+        .manual-box p { margin: 0; white-space: pre-line; color: #475569; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -68,10 +74,10 @@
 
             <div id="learning" class="content-section active card">
                 <h2>คู่มือการทำงาน (Work Instructions)</h2>
-                <ul>
-                    <li>📄 ขั้นตอนการต้อนรับลูกค้าและนำเสนอสินค้า</li>
-                    <li>📄 การใช้งานระบบหลังบ้านเบื้องต้น</li>
-                </ul>
+                <p style="color: gray; margin-bottom: 20px;">เลือกหัวข้อเพื่อศึกษาขั้นตอนการทำงานของทีมเราได้เลยค่ะ</p>
+                <div id="learning-list">
+                    <p style="color: gray;">กำลังโหลดคลังเรียนรู้...</p>
+                </div>
             </div>
 
             <div id="kpi" class="content-section card">
@@ -93,43 +99,52 @@
             </div>
 
             <div id="admin" class="content-section card" style="border-left: 4px solid #ef4444;">
-                <h2 style="color: #ef4444;">⚙️ อัปเดตข้อมูลพนักงาน (เฉพาะผู้จัดการ)</h2>
-                <p style="color: gray;">กรอกรหัสพนักงานที่ต้องการแก้ไข หรือสร้างพนักงานใหม่</p>
-                
+                <h2 style="color: #ef4444;">⚙️ อัปเดตข้อมูลพนักงาน</h2>
                 <div class="admin-form-group">
                     <label>รหัสพนักงาน (Document ID):</label>
-                    <input type="text" id="admin-doc-id" class="admin-input" placeholder="เช่น AO-002001" required>
+                    <input type="text" id="admin-doc-id" class="admin-input" placeholder="เช่น AO-002001">
                 </div>
                 <div class="admin-form-group">
                     <label>ชื่อ-นามสกุล:</label>
-                    <input type="text" id="admin-name" class="admin-input" placeholder="เช่น น้องเอ ขยันมาก">
+                    <input type="text" id="admin-name" class="admin-input">
                 </div>
                 <div class="admin-form-group">
                     <label>ตำแหน่ง:</label>
-                    <input type="text" id="admin-position" class="admin-input" placeholder="เช่น Sales">
+                    <input type="text" id="admin-position" class="admin-input">
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <div class="admin-form-group" style="flex: 1;">
                         <label>เป้าหมาย KPI:</label>
-                        <input type="number" id="admin-kpi-target" class="admin-input" placeholder="เช่น 100">
+                        <input type="number" id="admin-kpi-target" class="admin-input">
                     </div>
                     <div class="admin-form-group" style="flex: 1;">
                         <label>ผลงาน KPI ที่ทำได้:</label>
-                        <input type="number" id="admin-kpi-actual" class="admin-input" placeholder="เช่น 85">
+                        <input type="number" id="admin-kpi-actual" class="admin-input">
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <div class="admin-form-group" style="flex: 1;">
                         <label>ยอดขายรวม (บาท):</label>
-                        <input type="number" id="admin-sales" class="admin-input" placeholder="เช่น 50000">
+                        <input type="number" id="admin-sales" class="admin-input">
                     </div>
                     <div class="admin-form-group" style="flex: 1;">
                         <label>คอมมิชชั่น (บาท):</label>
-                        <input type="number" id="admin-commission" class="admin-input" placeholder="เช่น 2500">
+                        <input type="number" id="admin-commission" class="admin-input">
                     </div>
                 </div>
-                
-                <button id="btn-save-admin" class="admin-btn">💾 บันทึกข้อมูลขึ้นระบบ</button>
+                <button id="btn-save-admin" class="admin-btn">💾 บันทึกข้อมูลพนักงาน</button>
+
+                <hr style="border-color: #ef4444; margin: 30px 0;">
+                <h2 style="color: #3b82f6;">📚 เพิ่มหัวข้อเรียนรู้งาน (Work Instructions)</h2>
+                <div class="admin-form-group">
+                    <label>ชื่อหัวข้อคู่มือ:</label>
+                    <input type="text" id="learning-title" class="admin-input" placeholder="เช่น ขั้นตอนการส่งเหล็กเกรดพิเศษให้ลูกค้าล็อตใหญ่">
+                </div>
+                <div class="admin-form-group">
+                    <label>เนื้อหารายละเอียดคู่มือ (พิมพ์เว้นบรรทัดได้เต็มที่เลยค่ะ):</label>
+                    <textarea id="learning-content" class="admin-textarea" rows="8" placeholder="1. ตรวจสอบเกรดเหล็กและใบรับรองมาตรฐาน มอก.&#10;2. ประสานงานรถขนส่งขนาดใหญ่..."></textarea>
+                </div>
+                <button id="btn-save-learning" class="admin-btn" style="background-color: #3b82f6;">💾 บันทึกคู่มือลงระบบ</button>
             </div>
         </div>
     </div>
@@ -147,8 +162,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        // เอยเพิ่มคาถา setDoc เข้ามาเพื่อยัดข้อมูลลงตู้เซฟค่ะ!
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // เพิ่มคำสั่ง collection และ getDocs เพื่อดึงคู่มือทั้งหมดค่ะ
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         const firebaseConfig = {
@@ -169,45 +184,68 @@
         const appContainer = document.getElementById('app-container');
         const errorMsg = document.getElementById('login-error');
 
+        // ฟังก์ชันดึงข้อมูลพนักงาน
         async function fetchEmployeeData() {
             try {
-                // ตอนนี้ยังดึงข้อมูลคุณฐิติชญาน์มาโชว์ที่หน้า KPI เป็นหลักอยู่นะคะ
                 const docRef = doc(db, "employees", "AO-002001");
                 const docSnap = await getDoc(docRef);
-
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     document.getElementById("show-name").innerText = data.name || "-";
                     document.getElementById("show-position").innerText = data.position || "-";
-                    
                     const target = data.kpi_target || 0;
                     const actual = data.kpi_actual || 0;
                     document.getElementById("show-target").innerText = target + " %";
                     document.getElementById("show-actual").innerText = actual + " %";
-                    
                     let successRate = target > 0 ? (actual / target) * 100 : 0;
                     let grade = "C";
                     if (successRate >= 95) grade = "A";
                     else if (successRate >= 80) grade = "B";
                     document.getElementById("show-grade").innerText = grade;
-                    
                     const sales = data.total_sales || 0;
                     const comm = data.commission || 0;
                     document.getElementById("show-sales").innerText = sales.toLocaleString('th-TH');
                     document.getElementById("show-commission").innerText = comm.toLocaleString('th-TH');
                     document.getElementById("show-net").innerText = (15000 + comm).toLocaleString('th-TH');
                 }
+            } catch (error) { console.error(error); }
+        }
+
+        // ฟังก์ชันดึงคลังเรียนรู้งานจากคอลเล็กชันมาแสดง (เรียงตามเวลาที่สร้าง)
+        async function fetchLearningMaterials() {
+            try {
+                const q = query(collection(db, "learning_materials"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                const listContainer = document.getElementById("learning-list");
+                listContainer.innerHTML = "";
+                
+                if (querySnapshot.empty) {
+                    listContainer.innerHTML = "<p style='color:gray;'>ยังไม่มีคู่มือในระบบ พี่ท็อปเพิ่มคู่มืออันแรกได้จากหน้า Admin ด้านล่างสุดเลยค่ะ!</p>";
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const item = doc.data();
+                    const topicHtml = `
+                        <div class="manual-box">
+                            <h3>📄 ${item.title}</h3>
+                            <p>${item.content}</p>
+                        </div>
+                    `;
+                    listContainer.innerHTML += topicHtml;
+                });
             } catch (error) {
-                console.error("มีปัญหาตอนดึงข้อมูล: ", error);
+                console.error("ดึงข้อมูลคู่มือไม่สำเร็จ: ", error);
             }
         }
 
-        // ระบบ Login
+        // ระบบเช็กสถานะล็อกอิน
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 loginScreen.style.display = 'none';
                 appContainer.style.display = 'flex';
                 fetchEmployeeData(); 
+                fetchLearningMaterials(); // เข้าเว็บปุ๊บ โหลดคู่มือปั๊บ!
             } else {
                 loginScreen.style.display = 'flex';
                 appContainer.style.display = 'none';
@@ -217,48 +255,55 @@
         document.getElementById('btn-login').addEventListener('click', () => {
             const email = document.getElementById('email-input').value;
             const password = document.getElementById('password-input').value;
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => { errorMsg.style.display = 'none'; })
-                .catch(() => { errorMsg.style.display = 'block'; });
+            signInWithEmailAndPassword(auth, email, password).catch(() => { errorMsg.style.display = 'block'; });
         });
 
         document.getElementById('btn-logout').addEventListener('click', () => {
-            signOut(auth).then(() => {
-                document.getElementById('email-input').value = '';
-                document.getElementById('password-input').value = '';
-            });
+            signOut(auth);
         });
 
-        // --- ระบบบันทึกข้อมูลของหน้า Admin ---
+        // บันทึกข้อมูลพนักงาน
         document.getElementById('btn-save-admin').addEventListener('click', async () => {
             const docId = document.getElementById('admin-doc-id').value;
-            
-            // เช็กก่อนว่าใส่รหัสพนักงานหรือยัง
-            if (!docId) {
-                alert("พี่ท็อปอย่าลืมใส่รหัสพนักงาน (Document ID) ก่อนบันทึกนะคะ!");
+            if (!docId) { alert("ลืมใส่รหัสพนักงานค่ะ!"); return; }
+            await setDoc(doc(db, "employees", docId), {
+                name: document.getElementById('admin-name').value,
+                position: document.getElementById('admin-position').value,
+                kpi_target: Number(document.getElementById('admin-kpi-target').value),
+                kpi_actual: Number(document.getElementById('admin-kpi-actual').value),
+                total_sales: Number(document.getElementById('admin-sales').value),
+                commission: Number(document.getElementById('admin-commission').value)
+            }, { merge: true });
+            alert("บันทึกข้อมูลพนักงานสำเร็จแล้วค่ะ!");
+            fetchEmployeeData();
+        });
+
+        // --- ระบบบันทึกคู่มือเรียนรู้งาน (ปุ่มใหม่!) ---
+        document.getElementById('btn-save-learning').addEventListener('click', async () => {
+            const title = document.getElementById('learning-title').value;
+            const content = document.getElementById('learning-content').value;
+
+            if (!title || !content) {
+                alert("พี่ท็อปขา กรอกหัวข้อกับเนื้อหาคู่มือให้ครบก่อนกดบันทึกน้า!");
                 return;
             }
 
             try {
-                // ร่ายคาถา setDoc ยัดข้อมูลลง Firestore
-                // ใช้ merge: true เพื่ออัปเดตเฉพาะช่องที่เรากรอก ช่องเก่าๆ (เช่น อีเมล) จะได้ไม่หายค่ะ
-                await setDoc(doc(db, "employees", docId), {
-                    name: document.getElementById('admin-name').value,
-                    position: document.getElementById('admin-position').value,
-                    kpi_target: Number(document.getElementById('admin-kpi-target').value),
-                    kpi_actual: Number(document.getElementById('admin-kpi-actual').value),
-                    total_sales: Number(document.getElementById('admin-sales').value),
-                    commission: Number(document.getElementById('admin-commission').value)
-                }, { merge: true });
+                // บันทึกเข้าคอลเล็กชันใหม่ชื่อ learning_materials แบบอัตโนมัติ
+                await addDoc(collection(db, "learning_materials"), {
+                    title: title,
+                    content: content,
+                    createdAt: new Date()
+                });
 
-                alert("เอยส่งข้อมูลขึ้นตู้เซฟเรียบร้อยแล้วค่ะพี่ท็อป! เก่งมากเลยยย 🎉");
+                alert("เอยบันทึกคู่มือเรียนรู้งานขึ้นระบบเรียบร้อยแล้วค่ะ! 🎉");
+                document.getElementById('learning-title').value = '';
+                document.getElementById('learning-content').value = '';
                 
-                // รีเฟรชข้อมูลบนหน้าเว็บให้เป็นปัจจุบัน
-                fetchEmployeeData();
-                
+                fetchLearningMaterials(); // สั่งรีเฟรชหน้าคู่มือให้โชว์อันใหม่ทันที
             } catch (error) {
-                console.error("เกิดข้อผิดพลาดในการบันทึก: ", error);
-                alert("อ๊ะ! บันทึกไม่สำเร็จค่ะ ลองเช็ก Console ดูนะคะ");
+                console.error("บันทึกคู่มือล้มเหลว: ", error);
+                alert("เกิดข้อผิดพลาดในการบันทึกคู่มือค่ะ");
             }
         });
     </script>
