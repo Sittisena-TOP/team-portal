@@ -8,7 +8,7 @@
         :root { --primary-color: #2563eb; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); height: 100vh; overflow: hidden; }
         
-        /* ดีไซน์หน้าจอ Login (ด่าน รปภ.) */
+        /* หน้าจอ Login */
         #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--sidebar-color); }
         .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 300px; text-align: center; }
         .login-card h2 { margin-top: 0; color: var(--sidebar-color); }
@@ -17,9 +17,8 @@
         .login-btn:hover { background-color: #1d4ed8; }
         #login-error { color: red; font-size: 14px; margin-top: 10px; display: none; }
 
-        /* โครงสร้างเว็บหลัก (ซ่อนไว้ก่อนจนกว่าจะล็อกอิน) */
+        /* หน้าเว็บหลัก */
         #app-container { display: none; height: 100vh; display: flex; width: 100%; }
-        
         .sidebar { width: 250px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; flex-shrink: 0; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #475569; padding-bottom: 10px; }
         .menu-btn { width: 100%; padding: 12px; margin-bottom: 10px; background-color: transparent; color: white; border: none; text-align: left; font-size: 16px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
@@ -29,6 +28,13 @@
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .content-section { display: none; }
         .content-section.active { display: block; }
+
+        /* ดีไซน์หน้า Admin Form */
+        .admin-form-group { margin-bottom: 15px; }
+        .admin-form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .admin-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .admin-btn { padding: 10px 20px; background-color: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .admin-btn:hover { background-color: #059669; }
     </style>
 </head>
 <body>
@@ -50,6 +56,8 @@
             <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
             <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
             <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
+            <hr style="border-color: #475569; margin: 20px 0;">
+            <button class="menu-btn" onclick="showSection('admin')" style="color: #fca5a5;">⚙️ จัดการข้อมูล (Admin)</button>
         </div>
 
         <div class="main-content">
@@ -63,7 +71,6 @@
                 <ul>
                     <li>📄 ขั้นตอนการต้อนรับลูกค้าและนำเสนอสินค้า</li>
                     <li>📄 การใช้งานระบบหลังบ้านเบื้องต้น</li>
-                    <li>❓ ถาม-ตอบ ปัญหาที่พบบ่อย (Q&A)</li>
                 </ul>
             </div>
 
@@ -74,7 +81,7 @@
                 <hr>
                 <p><strong>เป้าหมายที่ตั้งไว้:</strong> <span id="show-target" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
                 <p><strong>ผลงานที่ทำได้:</strong> <span id="show-actual" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
-                <h3 style="color: var(--primary-color);">เกรดการประเมิน: <span id="show-grade" style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 5px;">กำลังคำนวณ...</span></h3>
+                <h3 style="color: var(--primary-color);">เกรดการประเมิน: <span id="show-grade" style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 5px;">...</span></h3>
             </div>
 
             <div id="commission" class="content-section card">
@@ -82,7 +89,47 @@
                 <p><strong>ยอดขายรวมเดือนนี้:</strong> ฿ <span id="show-sales" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
                 <p><strong>คอมมิชชั่นที่ได้รับ:</strong> ฿ <span id="show-commission" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
                 <hr>
-                <h3 style="color: green;">รายได้สุทธิรวม: ฿ <span id="show-net">กำลังคำนวณ...</span></h3>
+                <h3 style="color: green;">รายได้สุทธิรวม: ฿ <span id="show-net">...</span></h3>
+            </div>
+
+            <div id="admin" class="content-section card" style="border-left: 4px solid #ef4444;">
+                <h2 style="color: #ef4444;">⚙️ อัปเดตข้อมูลพนักงาน (เฉพาะผู้จัดการ)</h2>
+                <p style="color: gray;">กรอกรหัสพนักงานที่ต้องการแก้ไข หรือสร้างพนักงานใหม่</p>
+                
+                <div class="admin-form-group">
+                    <label>รหัสพนักงาน (Document ID):</label>
+                    <input type="text" id="admin-doc-id" class="admin-input" placeholder="เช่น AO-002001" required>
+                </div>
+                <div class="admin-form-group">
+                    <label>ชื่อ-นามสกุล:</label>
+                    <input type="text" id="admin-name" class="admin-input" placeholder="เช่น น้องเอ ขยันมาก">
+                </div>
+                <div class="admin-form-group">
+                    <label>ตำแหน่ง:</label>
+                    <input type="text" id="admin-position" class="admin-input" placeholder="เช่น Sales">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>เป้าหมาย KPI:</label>
+                        <input type="number" id="admin-kpi-target" class="admin-input" placeholder="เช่น 100">
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>ผลงาน KPI ที่ทำได้:</label>
+                        <input type="number" id="admin-kpi-actual" class="admin-input" placeholder="เช่น 85">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>ยอดขายรวม (บาท):</label>
+                        <input type="number" id="admin-sales" class="admin-input" placeholder="เช่น 50000">
+                    </div>
+                    <div class="admin-form-group" style="flex: 1;">
+                        <label>คอมมิชชั่น (บาท):</label>
+                        <input type="number" id="admin-commission" class="admin-input" placeholder="เช่น 2500">
+                    </div>
+                </div>
+                
+                <button id="btn-save-admin" class="admin-btn">💾 บันทึกข้อมูลขึ้นระบบ</button>
             </div>
         </div>
     </div>
@@ -100,8 +147,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        // นำเข้าเครื่องมือ รปภ. (Authentication) ของ Firebase
+        // เอยเพิ่มคาถา setDoc เข้ามาเพื่อยัดข้อมูลลงตู้เซฟค่ะ!
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         const firebaseConfig = {
@@ -116,15 +163,15 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app); // ปลุก รปภ. ขึ้นมาทำงาน!
+        const auth = getAuth(app);
 
         const loginScreen = document.getElementById('login-screen');
         const appContainer = document.getElementById('app-container');
         const errorMsg = document.getElementById('login-error');
 
-        // ฟังก์ชันดึงข้อมูลพนักงาน (ยังดึงแฟ้มคุณฐิติชญาน์อยู่ค่ะ)
         async function fetchEmployeeData() {
             try {
+                // ตอนนี้ยังดึงข้อมูลคุณฐิติชญาน์มาโชว์ที่หน้า KPI เป็นหลักอยู่นะคะ
                 const docRef = doc(db, "employees", "AO-002001");
                 const docSnap = await getDoc(docRef);
 
@@ -146,52 +193,73 @@
                     
                     const sales = data.total_sales || 0;
                     const comm = data.commission || 0;
-                    const baseSalary = 15000;
-                    
                     document.getElementById("show-sales").innerText = sales.toLocaleString('th-TH');
                     document.getElementById("show-commission").innerText = comm.toLocaleString('th-TH');
-                    document.getElementById("show-net").innerText = (baseSalary + comm).toLocaleString('th-TH');
+                    document.getElementById("show-net").innerText = (15000 + comm).toLocaleString('th-TH');
                 }
             } catch (error) {
                 console.error("มีปัญหาตอนดึงข้อมูล: ", error);
             }
         }
 
-        // --- ระบบเช็กว่าล็อกอินอยู่หรือเปล่า ---
+        // ระบบ Login
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // ถ้ามีบัตรผ่าน: ซ่อนหน้า Login โชว์หน้าเว็บหลัก แล้วดูดข้อมูล
                 loginScreen.style.display = 'none';
                 appContainer.style.display = 'flex';
                 fetchEmployeeData(); 
             } else {
-                // ถ้าไม่มีบัตรผ่าน: โชว์แต่หน้า Login ซ่อนหน้าเว็บหลัก
                 loginScreen.style.display = 'flex';
                 appContainer.style.display = 'none';
             }
         });
 
-        // --- คำสั่งตอนกดปุ่ม "เข้าสู่ระบบ" ---
         document.getElementById('btn-login').addEventListener('click', () => {
             const email = document.getElementById('email-input').value;
             const password = document.getElementById('password-input').value;
-            
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    errorMsg.style.display = 'none'; // ล็อกอินสำเร็จ ซ่อนข้อความเตือน
-                })
-                .catch((error) => {
-                    errorMsg.style.display = 'block'; // ล็อกอินพลาด โชว์ตัวแดงเตือน
-                    console.error("ล็อกอินไม่ผ่าน: ", error.message);
-                });
+                .then(() => { errorMsg.style.display = 'none'; })
+                .catch(() => { errorMsg.style.display = 'block'; });
         });
 
-        // --- คำสั่งตอนกดปุ่ม "ออกจากระบบ" (ปุ่มสีแดงมุมขวาบน) ---
         document.getElementById('btn-logout').addEventListener('click', () => {
             signOut(auth).then(() => {
                 document.getElementById('email-input').value = '';
                 document.getElementById('password-input').value = '';
             });
+        });
+
+        // --- ระบบบันทึกข้อมูลของหน้า Admin ---
+        document.getElementById('btn-save-admin').addEventListener('click', async () => {
+            const docId = document.getElementById('admin-doc-id').value;
+            
+            // เช็กก่อนว่าใส่รหัสพนักงานหรือยัง
+            if (!docId) {
+                alert("พี่ท็อปอย่าลืมใส่รหัสพนักงาน (Document ID) ก่อนบันทึกนะคะ!");
+                return;
+            }
+
+            try {
+                // ร่ายคาถา setDoc ยัดข้อมูลลง Firestore
+                // ใช้ merge: true เพื่ออัปเดตเฉพาะช่องที่เรากรอก ช่องเก่าๆ (เช่น อีเมล) จะได้ไม่หายค่ะ
+                await setDoc(doc(db, "employees", docId), {
+                    name: document.getElementById('admin-name').value,
+                    position: document.getElementById('admin-position').value,
+                    kpi_target: Number(document.getElementById('admin-kpi-target').value),
+                    kpi_actual: Number(document.getElementById('admin-kpi-actual').value),
+                    total_sales: Number(document.getElementById('admin-sales').value),
+                    commission: Number(document.getElementById('admin-commission').value)
+                }, { merge: true });
+
+                alert("เอยส่งข้อมูลขึ้นตู้เซฟเรียบร้อยแล้วค่ะพี่ท็อป! เก่งมากเลยยย 🎉");
+                
+                // รีเฟรชข้อมูลบนหน้าเว็บให้เป็นปัจจุบัน
+                fetchEmployeeData();
+                
+            } catch (error) {
+                console.error("เกิดข้อผิดพลาดในการบันทึก: ", error);
+                alert("อ๊ะ! บันทึกไม่สำเร็จค่ะ ลองเช็ก Console ดูนะคะ");
+            }
         });
     </script>
 </body>
