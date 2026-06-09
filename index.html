@@ -3,167 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Portal - ระบบจัดการทีม</title>
+    <title>Sale K.T.M. Steel - Team Portal 2.0</title>
     <style>
-        :root { --primary-color: #2563eb; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); height: 100vh; overflow: hidden; }
+        :root { --primary-color: #2563eb; --secondary-color: #11caa0; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); height: 100vh; overflow: hidden; display: flex; }
         
         /* หน้าจอ Login */
-        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--sidebar-color); }
-        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 300px; text-align: center; }
-        .login-card h2 { margin-top: 0; color: var(--sidebar-color); }
-        .login-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .login-btn { width: 100%; padding: 10px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: bold; }
-        .login-btn:hover { background-color: #1d4ed8; }
-        #login-error { color: red; font-size: 14px; margin-top: 10px; display: none; }
+        #login-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: flex; justify-content: center; align-items: center; background-color: var(--sidebar-color); }
+        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 320px; text-align: center; }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        
+        /* โครงสร้างหลัก */
+        #app-container { display: none; width: 100%; height: 100vh; display: flex; }
+        .sidebar { width: 260px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; flex-shrink: 0; overflow-y: auto; }
+        .sidebar h2 { text-align: center; font-size: 20px; margin-bottom: 25px; border-bottom: 1px solid #475569; padding-bottom: 10px; }
+        .menu-btn { width: 100%; padding: 12px; margin-bottom: 8px; background: transparent; color: #cbd5e1; border: none; text-align: left; font-size: 14px; cursor: pointer; border-radius: 5px; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); color: white; }
+        .menu-group-label { font-size: 11px; color: #64748b; text-transform: uppercase; margin: 15px 0 8px 5px; letter-spacing: 1px; }
 
-        /* หน้าเว็บหลัก */
-        #app-container { display: none; height: 100vh; display: flex; width: 100%; }
-        .sidebar { width: 250px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; flex-shrink: 0; }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #475569; padding-bottom: 10px; }
-        .menu-btn { width: 100%; padding: 12px; margin-bottom: 10px; background-color: transparent; color: white; border: none; text-align: left; font-size: 16px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
-        .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); }
-        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .main-content { flex: 1; padding: 25px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .content-section { display: none; }
         .content-section.active { display: block; }
 
-        /* ดีไซน์หน้า Admin Form */
-        .admin-form-group { margin-bottom: 15px; }
-        .admin-form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
-        .admin-input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .admin-textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; resize: vertical; }
-        .admin-btn { padding: 10px 20px; background-color: #10b981; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .admin-btn:hover { background-color: #059669; }
+        /* การจัดหมวดหมู่ในหน้าเรียนรู้ */
+        .category-container { margin-bottom: 30px; }
+        .category-title { font-size: 18px; color: var(--primary-color); border-left: 5px solid var(--primary-color); padding-left: 15px; margin-bottom: 15px; background: #eff6ff; padding: 10px; border-radius: 0 8px 8px 0; }
+        .manual-item { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 10px; transition: 0.3s; cursor: pointer; }
+        .manual-item:hover { border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         
-        /* ดีไซน์กล่องคู่มือเรียนรู้ */
-        .manual-box { background: #f8fafc; padding: 20px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .manual-box h3 { margin: 0 0 10px 0; color: #1e293b; }
-        .manual-box p { margin: 0; white-space: pre-line; color: #475569; line-height: 1.6; }
+        /* หน้า Admin อัปเกรด */
+        .admin-tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .tab-btn { padding: 8px 15px; cursor: pointer; border-radius: 5px; border: 1px solid #ddd; background: #f8fafc; }
+        .tab-btn.active { background: var(--sidebar-color); color: white; border-color: var(--sidebar-color); }
+        .admin-sub-section { display: none; }
+        .admin-sub-section.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        .save-btn { background: var(--secondary-color); color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
+
+        /* ระบบ Quiz */
+        .quiz-card { border: 2px solid #e2e8f0; padding: 20px; border-radius: 10px; margin-bottom: 15px; text-align: center; }
+        .quiz-btn { background: var(--primary-color); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <h2>🧑‍💻 เข้าสู่ระบบ</h2>
-            <p>Team Portal</p>
+            <h2 style="color: #1e293b;">🧑‍💻 SALE K.T.M.</h2>
+            <p style="color: #64748b;">Team Portal 2.0</p>
             <input type="email" id="email-input" class="login-input" placeholder="อีเมลพนักงาน">
             <input type="password" id="password-input" class="login-input" placeholder="รหัสผ่าน">
             <button id="btn-login" class="login-btn">เข้าสู่ระบบ</button>
-            <p id="login-error">อีเมลหรือรหัสผ่านไม่ถูกต้อง!</p>
+            <p id="login-error" style="color: red; font-size: 13px; display: none; margin-top: 10px;">อีเมลหรือรหัสผ่านไม่ถูกต้อง!</p>
         </div>
     </div>
 
     <div id="app-container">
         <div class="sidebar">
-            <h2>🧑‍💻 Team Portal</h2>
-            <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
+            <h2>📦 KTM STEEL</h2>
+            
+            <div class="menu-group-label">ข้อมูลส่วนตัว</div>
             <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
             <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
-            <hr style="border-color: #475569; margin: 20px 0;">
-            <button class="menu-btn" onclick="showSection('admin')" style="color: #fca5a5;">⚙️ จัดการข้อมูล (Admin)</button>
+
+            <div class="menu-group-label">ศูนย์การเรียนรู้</div>
+            <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
+            <button class="menu-btn" onclick="showSection('quizzes')">📝 แบบทดสอบ (Quiz)</button>
+
+            <div class="menu-group-label">ระบบจัดการ</div>
+            <button class="menu-btn" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
         </div>
 
         <div class="main-content">
             <div class="header">
-                <h1>ยินดีต้อนรับสู่ระบบจัดการทีม</h1>
-                <button id="btn-logout" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+                <h3 id="user-display">ยินดีต้อนรับคุณพนักงาน</h3>
+                <button id="btn-logout" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
             </div>
 
             <div id="learning" class="content-section active card">
-                <h2>คู่มือการทำงาน (Work Instructions)</h2>
-                <p style="color: gray; margin-bottom: 20px;">เลือกหัวข้อเพื่อศึกษาขั้นตอนการทำงานของทีมเราได้เลยค่ะ</p>
-                <div id="learning-list">
-                    <p style="color: gray;">กำลังโหลดคลังเรียนรู้...</p>
+                <h2>📚 คลังเรียนรู้งาน Sale K.T.M. Steel</h2>
+                <div id="learning-content-display">
+                    <p style="color: gray;">กำลังรวบรวมข้อมูลจากตู้เซฟ...</p>
                 </div>
             </div>
 
             <div id="kpi" class="content-section card">
-                <h2>ผลการประเมิน KPI ประจำเดือน</h2>
-                <p><strong>ชื่อพนักงาน:</strong> <span id="show-name" style="color: blue; font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-                <p><strong>ตำแหน่ง:</strong> <span id="show-position" style="color: blue;">กำลังดึงข้อมูล...</span></p>
+                <h2>🎯 ผลการประเมิน KPI ประจำเดือน</h2>
+                <p>ชื่อ: <span id="show-name" style="font-weight: bold; color: var(--primary-color);">...</span></p>
+                <p>ตำแหน่ง: <span id="show-position">...</span></p>
                 <hr>
-                <p><strong>เป้าหมายที่ตั้งไว้:</strong> <span id="show-target" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-                <p><strong>ผลงานที่ทำได้:</strong> <span id="show-actual" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
-                <h3 style="color: var(--primary-color);">เกรดการประเมิน: <span id="show-grade" style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 5px;">...</span></h3>
+                <p>เป้าหมาย: <span id="show-target">...</span></p>
+                <p>ทำได้: <span id="show-actual">...</span></p>
+                <h3>เกรด: <span id="show-grade">...</span></h3>
             </div>
 
             <div id="commission" class="content-section card">
-                <h2>สรุปรายได้และคอมมิชชั่น</h2>
-                <p><strong>ยอดขายรวมเดือนนี้:</strong> ฿ <span id="show-sales" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-                <p><strong>คอมมิชชั่นที่ได้รับ:</strong> ฿ <span id="show-commission" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
+                <h2>💰 สรุปรายได้และคอมมิชชั่น</h2>
+                <p>ยอดขายเดือนนี้: ฿ <span id="show-sales" style="font-weight: bold;">0</span></p>
+                <p>คอมมิชชั่น: ฿ <span id="show-commission" style="font-weight: bold; color: #059669;">0</span></p>
                 <hr>
-                <h3 style="color: green;">รายได้สุทธิรวม: ฿ <span id="show-net">...</span></h3>
+                <h3 style="color: #059669;">รายได้รวมสุทธิ: ฿ <span id="show-net">0</span></h3>
             </div>
 
-            <div id="admin" class="content-section card" style="border-left: 4px solid #ef4444;">
-                <h2 style="color: #ef4444;">⚙️ อัปเดตข้อมูลพนักงาน</h2>
-                <div class="admin-form-group">
-                    <label>รหัสพนักงาน (Document ID):</label>
-                    <input type="text" id="admin-doc-id" class="admin-input" placeholder="เช่น AO-002001">
+            <div id="quizzes" class="content-section card">
+                <h2>📝 ระบบแบบทดสอบวัดมาตรฐาน</h2>
+                <p style="color: gray;">ทดสอบความรู้หลังจากศึกษาคลังเรียนรู้แล้ว</p>
+                <div id="quiz-list-display">
+                    <p style="color: gray;">เร็วๆ นี้: แบบทดสอบชุดแรกจะถูกปล่อยออกมาค่ะ</p>
                 </div>
-                <div class="admin-form-group">
-                    <label>ชื่อ-นามสกุล:</label>
-                    <input type="text" id="admin-name" class="admin-input">
-                </div>
-                <div class="admin-form-group">
-                    <label>ตำแหน่ง:</label>
-                    <input type="text" id="admin-position" class="admin-input">
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>เป้าหมาย KPI:</label>
-                        <input type="number" id="admin-kpi-target" class="admin-input">
-                    </div>
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>ผลงาน KPI ที่ทำได้:</label>
-                        <input type="number" id="admin-kpi-actual" class="admin-input">
-                    </div>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>ยอดขายรวม (บาท):</label>
-                        <input type="number" id="admin-sales" class="admin-input">
-                    </div>
-                    <div class="admin-form-group" style="flex: 1;">
-                        <label>คอมมิชชั่น (บาท):</label>
-                        <input type="number" id="admin-commission" class="admin-input">
-                    </div>
-                </div>
-                <button id="btn-save-admin" class="admin-btn">💾 บันทึกข้อมูลพนักงาน</button>
+            </div>
 
-                <hr style="border-color: #ef4444; margin: 30px 0;">
-                <h2 style="color: #3b82f6;">📚 เพิ่มหัวข้อเรียนรู้งาน (Work Instructions)</h2>
-                <div class="admin-form-group">
-                    <label>ชื่อหัวข้อคู่มือ:</label>
-                    <input type="text" id="learning-title" class="admin-input" placeholder="เช่น ขั้นตอนการส่งเหล็กเกรดพิเศษให้ลูกค้าล็อตใหญ่">
+            <div id="admin" class="content-section card" style="border-top: 5px solid #ef4444;">
+                <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ ระบบจัดการหลังบ้าน (Manager Only)</h2>
+                
+                <div class="admin-tab-container">
+                    <div class="tab-btn active" onclick="switchAdminTab('tab-kpi', this)">ตัวเลขพนักงาน</div>
+                    <div class="tab-btn" onclick="switchAdminTab('tab-learning', this)">คลังเรียนรู้งาน</div>
+                    <div class="tab-btn" onclick="switchAdminTab('tab-quiz', this)">จัดการแบบทดสอบ</div>
                 </div>
-                <div class="admin-form-group">
-                    <label>เนื้อหารายละเอียดคู่มือ (พิมพ์เว้นบรรทัดได้เต็มที่เลยค่ะ):</label>
-                    <textarea id="learning-content" class="admin-textarea" rows="8" placeholder="1. ตรวจสอบเกรดเหล็กและใบรับรองมาตรฐาน มอก.&#10;2. ประสานงานรถขนส่งขนาดใหญ่..."></textarea>
+
+                <div id="tab-kpi" class="admin-sub-section active">
+                    <div class="form-group"><label>รหัสพนักงาน (Doc ID):</label><input type="text" id="adm-id" class="form-input" placeholder="เช่น AO-002001"></div>
+                    <div class="form-group"><label>ชื่อ:</label><input type="text" id="adm-name" class="form-input"></div>
+                    <div class="form-group"><label>ยอดขายเดือนนี้:</label><input type="number" id="adm-sales" class="form-input"></div>
+                    <div class="form-group"><label>คอมมิชชั่น:</label><input type="number" id="adm-comm" class="form-input"></div>
+                    <button class="save-btn" id="btn-save-kpi">💾 อัปเดตข้อมูลพนักงาน</button>
                 </div>
-                <button id="btn-save-learning" class="admin-btn" style="background-color: #3b82f6;">💾 บันทึกคู่มือลงระบบ</button>
+
+                <div id="tab-learning" class="admin-sub-section">
+                    <div class="form-group">
+                        <label>หมวดหมู่บทเรียน:</label>
+                        <select id="adm-learn-cat" class="form-select">
+                            <option value="identity">รู้จัก เค.ที.เอ็ม. สตีล</option>
+                            <option value="product">เรียนรู้เรื่องเหล็กและสินค้า</option>
+                            <option value="technical">เรียนรู้เครื่องมือวัดและมาตรฐาน</option>
+                            <option value="sales">เรียนรู้การขายและการเป็นที่ปรึกษา</option>
+                            <option value="teamwork">การจัดการปัญหาและทำงานเป็นทีม</option>
+                            <option value="summary">บทสรุปและคำศัพท์</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>หัวข้อบทเรียน:</label><input type="text" id="adm-learn-title" class="form-input" placeholder="เช่น วิสัยทัศน์บริษัท"></div>
+                    <div class="form-group"><label>เนื้อหา (พิมพ์เว้นบรรทัดได้เต็มที่):</label><textarea id="adm-learn-content" class="form-textarea" rows="10"></textarea></div>
+                    <button class="save-btn" id="btn-save-learning" style="background: var(--primary-color);">💾 บันทึกบทเรียนลงระบบ</button>
+                </div>
+
+                <div id="tab-quiz" class="admin-sub-section">
+                    <p style="color: gray;">(Beta) ฟีเจอร์สร้างแบบทดสอบกำลังตามมาในอัปเดตถัดไปค่ะ</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(sec => sec.classList.remove('active'));
-            const btns = document.querySelectorAll('.menu-btn');
-            btns.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-            event.target.classList.add('active');
-        }
-    </script>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        // เพิ่มคำสั่ง collection และ getDocs เพื่อดึงคู่มือทั้งหมดค่ะ
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         const firebaseConfig = {
@@ -180,132 +178,129 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
-        const errorMsg = document.getElementById('login-error');
+        // --- ส่วนควบคุม UI ทั่วไป ---
+        window.showSection = (id) => {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        };
 
-        // ฟังก์ชันดึงข้อมูลพนักงาน
-        async function fetchEmployeeData() {
-            try {
-                const docRef = doc(db, "employees", "AO-002001");
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    document.getElementById("show-name").innerText = data.name || "-";
-                    document.getElementById("show-position").innerText = data.position || "-";
-                    const target = data.kpi_target || 0;
-                    const actual = data.kpi_actual || 0;
-                    document.getElementById("show-target").innerText = target + " %";
-                    document.getElementById("show-actual").innerText = actual + " %";
-                    let successRate = target > 0 ? (actual / target) * 100 : 0;
-                    let grade = "C";
-                    if (successRate >= 95) grade = "A";
-                    else if (successRate >= 80) grade = "B";
-                    document.getElementById("show-grade").innerText = grade;
-                    const sales = data.total_sales || 0;
-                    const comm = data.commission || 0;
-                    document.getElementById("show-sales").innerText = sales.toLocaleString('th-TH');
-                    document.getElementById("show-commission").innerText = comm.toLocaleString('th-TH');
-                    document.getElementById("show-net").innerText = (15000 + comm).toLocaleString('th-TH');
-                }
-            } catch (error) { console.error(error); }
-        }
+        window.switchAdminTab = (tabId, btn) => {
+            document.querySelectorAll('.admin-sub-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        };
 
-        // ฟังก์ชันดึงคลังเรียนรู้งานจากคอลเล็กชันมาแสดง (เรียงตามเวลาที่สร้าง)
-        async function fetchLearningMaterials() {
-            try {
-                const q = query(collection(db, "learning_materials"), orderBy("createdAt", "desc"));
-                const querySnapshot = await getDocs(q);
-                const listContainer = document.getElementById("learning-list");
-                listContainer.innerHTML = "";
-                
-                if (querySnapshot.empty) {
-                    listContainer.innerHTML = "<p style='color:gray;'>ยังไม่มีคู่มือในระบบ พี่ท็อปเพิ่มคู่มืออันแรกได้จากหน้า Admin ด้านล่างสุดเลยค่ะ!</p>";
-                    return;
-                }
-
-                querySnapshot.forEach((doc) => {
-                    const item = doc.data();
-                    const topicHtml = `
-                        <div class="manual-box">
-                            <h3>📄 ${item.title}</h3>
-                            <p>${item.content}</p>
-                        </div>
-                    `;
-                    listContainer.innerHTML += topicHtml;
-                });
-            } catch (error) {
-                console.error("ดึงข้อมูลคู่มือไม่สำเร็จ: ", error);
+        // --- ฟังก์ชันหลัก: ดึงข้อมูลพนักงาน ---
+        async function fetchEmployeeData(userEmail) {
+            // หมายเหตุ: อนาคตเราจะแก้ให้ดึงตาม email จริงค่ะ ตอนนี้ทดสอบด้วย AO-002001
+            const docRef = doc(db, "employees", "AO-002001");
+            const snap = await getDoc(docRef);
+            if(snap.exists()) {
+                const d = snap.data();
+                document.getElementById("show-name").innerText = d.name || "-";
+                document.getElementById("show-position").innerText = d.position || "-";
+                document.getElementById("show-sales").innerText = (d.total_sales || 0).toLocaleString();
+                document.getElementById("show-commission").innerText = (d.commission || 0).toLocaleString();
+                document.getElementById("show-net").innerText = (15000 + (d.commission || 0)).toLocaleString();
             }
         }
 
-        // ระบบเช็กสถานะล็อกอิน
+        // --- ฟังก์ชันหลัก: ดึงคลังเรียนรู้งาน (จัดกลุ่ม) ---
+        const cats = {
+            identity: "1. รู้จัก เค.ที.เอ็ม. สตีล",
+            product: "2. เรียนรู้เรื่องเหล็กและสินค้า",
+            technical: "3. เรียนรู้เครื่องมือวัดและมาตรฐาน",
+            sales: "4. เรียนรู้การขายและการเป็นที่ปรึกษา",
+            teamwork: "5. การจัดการปัญหาและทำงานเป็นทีม",
+            summary: "6. บทสรุปและคำศัพท์"
+        };
+
+        async function fetchLearningPortal() {
+            const container = document.getElementById("learning-content-display");
+            container.innerHTML = "";
+            
+            const q = query(collection(db, "learning_materials"), orderBy("createdAt", "asc"));
+            const snap = await getDocs(q);
+            
+            const grouped = {};
+            snap.forEach(doc => {
+                const data = doc.data();
+                const cat = data.category || "summary";
+                if(!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(data);
+            });
+
+            Object.keys(cats).forEach(key => {
+                if(grouped[key]) {
+                    let section = `<div class="category-container"><div class="category-title">${cats[key]}</div>`;
+                    grouped[key].forEach(item => {
+                        section += `<div class="manual-item"><strong>${item.title}</strong><p style="font-size:13px; color:gray; margin-top:5px; white-space:pre-line;">${item.content}</p></div>`;
+                    });
+                    section += `</div>`;
+                    container.innerHTML += section;
+                }
+            });
+        }
+
+        // --- ระบบ Authentication ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginScreen.style.display = 'none';
-                appContainer.style.display = 'flex';
-                fetchEmployeeData(); 
-                fetchLearningMaterials(); // เข้าเว็บปุ๊บ โหลดคู่มือปั๊บ!
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                document.getElementById('user-display').innerText = `สวัสดีค่ะ คุณ ${user.email.split('@')[0]}`;
+                fetchEmployeeData(user.email);
+                fetchLearningPortal();
             } else {
-                loginScreen.style.display = 'flex';
-                appContainer.style.display = 'none';
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('app-container').style.display = 'none';
             }
         });
 
         document.getElementById('btn-login').addEventListener('click', () => {
-            const email = document.getElementById('email-input').value;
-            const password = document.getElementById('password-input').value;
-            signInWithEmailAndPassword(auth, email, password).catch(() => { errorMsg.style.display = 'block'; });
+            const e = document.getElementById('email-input').value;
+            const p = document.getElementById('password-input').value;
+            signInWithEmailAndPassword(auth, e, p).catch(() => document.getElementById('login-error').style.display='block');
         });
 
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            signOut(auth);
+        document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
+
+        // --- ระบบ Admin: บันทึกบทเรียน ---
+        document.getElementById('btn-save-learning').addEventListener('click', async () => {
+            const cat = document.getElementById('adm-learn-cat').value;
+            const title = document.getElementById('adm-learn-title').value;
+            const content = document.getElementById('adm-learn-content').value;
+
+            if(!title || !content) return alert("กรอกข้อมูลให้ครบก่อนนะคะพี่ท็อป!");
+
+            await setDoc(doc(collection(db, "learning_materials")), {
+                category: cat,
+                title: title,
+                content: content,
+                createdAt: new Date()
+            });
+
+            alert("บันทึกบทเรียนสำเร็จ!");
+            document.getElementById('adm-learn-title').value = "";
+            document.getElementById('adm-learn-content').value = "";
+            fetchLearningPortal();
         });
 
-        // บันทึกข้อมูลพนักงาน
-        document.getElementById('btn-save-admin').addEventListener('click', async () => {
-            const docId = document.getElementById('admin-doc-id').value;
-            if (!docId) { alert("ลืมใส่รหัสพนักงานค่ะ!"); return; }
-            await setDoc(doc(db, "employees", docId), {
-                name: document.getElementById('admin-name').value,
-                position: document.getElementById('admin-position').value,
-                kpi_target: Number(document.getElementById('admin-kpi-target').value),
-                kpi_actual: Number(document.getElementById('admin-kpi-actual').value),
-                total_sales: Number(document.getElementById('admin-sales').value),
-                commission: Number(document.getElementById('admin-commission').value)
+        // --- ระบบ Admin: บันทึก KPI ---
+        document.getElementById('btn-save-kpi').addEventListener('click', async () => {
+            const id = document.getElementById('adm-id').value;
+            if(!id) return alert("ใส่รหัสพนักงานด้วยค่ะ!");
+            await setDoc(doc(db, "employees", id), {
+                name: document.getElementById('adm-name').value,
+                total_sales: Number(document.getElementById('adm-sales').value),
+                commission: Number(document.getElementById('adm-comm').value)
             }, { merge: true });
-            alert("บันทึกข้อมูลพนักงานสำเร็จแล้วค่ะ!");
+            alert("อัปเดตสำเร็จ!");
             fetchEmployeeData();
         });
 
-        // --- ระบบบันทึกคู่มือเรียนรู้งาน (ปุ่มใหม่!) ---
-        document.getElementById('btn-save-learning').addEventListener('click', async () => {
-            const title = document.getElementById('learning-title').value;
-            const content = document.getElementById('learning-content').value;
-
-            if (!title || !content) {
-                alert("พี่ท็อปขา กรอกหัวข้อกับเนื้อหาคู่มือให้ครบก่อนกดบันทึกน้า!");
-                return;
-            }
-
-            try {
-                // บันทึกเข้าคอลเล็กชันใหม่ชื่อ learning_materials แบบอัตโนมัติ
-                await addDoc(collection(db, "learning_materials"), {
-                    title: title,
-                    content: content,
-                    createdAt: new Date()
-                });
-
-                alert("เอยบันทึกคู่มือเรียนรู้งานขึ้นระบบเรียบร้อยแล้วค่ะ! 🎉");
-                document.getElementById('learning-title').value = '';
-                document.getElementById('learning-content').value = '';
-                
-                fetchLearningMaterials(); // สั่งรีเฟรชหน้าคู่มือให้โชว์อันใหม่ทันที
-            } catch (error) {
-                console.error("บันทึกคู่มือล้มเหลว: ", error);
-                alert("เกิดข้อผิดพลาดในการบันทึกคู่มือค่ะ");
-            }
-        });
     </script>
 </body>
 </html>
