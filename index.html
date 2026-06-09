@@ -5,14 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Portal - ระบบจัดการทีม</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --sidebar-color: #1e293b;
-            --bg-color: #f1f5f9;
-            --text-color: #333;
-        }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); display: flex; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; }
+        :root { --primary-color: #2563eb; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); height: 100vh; overflow: hidden; }
+        
+        /* ดีไซน์หน้าจอ Login (ด่าน รปภ.) */
+        #login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: var(--sidebar-color); }
+        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 300px; text-align: center; }
+        .login-card h2 { margin-top: 0; color: var(--sidebar-color); }
+        .login-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 10px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px; font-weight: bold; }
+        .login-btn:hover { background-color: #1d4ed8; }
+        #login-error { color: red; font-size: 14px; margin-top: 10px; display: none; }
+
+        /* โครงสร้างเว็บหลัก (ซ่อนไว้ก่อนจนกว่าจะล็อกอิน) */
+        #app-container { display: none; height: 100vh; display: flex; width: 100%; }
+        
+        .sidebar { width: 250px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; flex-shrink: 0; }
         .sidebar h2 { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #475569; padding-bottom: 10px; }
         .menu-btn { width: 100%; padding: 12px; margin-bottom: 10px; background-color: transparent; color: white; border: none; text-align: left; font-size: 16px; cursor: pointer; border-radius: 5px; transition: 0.3s; }
         .menu-btn:hover, .menu-btn.active { background-color: var(--primary-color); }
@@ -25,46 +33,57 @@
 </head>
 <body>
 
-    <div class="sidebar">
-        <h2>🧑‍💻 Team Portal</h2>
-        <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
-        <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
-        <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>🧑‍💻 เข้าสู่ระบบ</h2>
+            <p>Team Portal</p>
+            <input type="email" id="email-input" class="login-input" placeholder="อีเมลพนักงาน">
+            <input type="password" id="password-input" class="login-input" placeholder="รหัสผ่าน">
+            <button id="btn-login" class="login-btn">เข้าสู่ระบบ</button>
+            <p id="login-error">อีเมลหรือรหัสผ่านไม่ถูกต้อง!</p>
+        </div>
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <h1>ยินดีต้อนรับสู่ระบบจัดการทีม</h1>
-            <button style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+    <div id="app-container">
+        <div class="sidebar">
+            <h2>🧑‍💻 Team Portal</h2>
+            <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
+            <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
+            <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
         </div>
 
-        <div id="learning" class="content-section active card">
-            <h2>คู่มือการทำงาน (Work Instructions)</h2>
-            <p>เลือกหัวข้อเพื่อศึกษาขั้นตอนการทำงานของทีมเราได้เลยค่ะ</p>
-            <ul>
-                <li>📄 ขั้นตอนการต้อนรับลูกค้าและนำเสนอสินค้า</li>
-                <li>📄 การใช้งานระบบหลังบ้านเบื้องต้น</li>
-                <li>❓ ถาม-ตอบ ปัญหาที่พบบ่อย (Q&A)</li>
-            </ul>
-        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>ยินดีต้อนรับสู่ระบบจัดการทีม</h1>
+                <button id="btn-logout" style="padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+            </div>
 
-        <div id="kpi" class="content-section card">
-            <h2>ผลการประเมิน KPI ประจำเดือน</h2>
-            <p><strong>ชื่อพนักงาน:</strong> <span id="show-name" style="color: blue; font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-            <p><strong>ตำแหน่ง:</strong> <span id="show-position" style="color: blue;">กำลังดึงข้อมูล...</span></p>
-            <hr>
-            <p><strong>เป้าหมายที่ตั้งไว้:</strong> <span id="show-target" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-            <p><strong>ผลงานที่ทำได้:</strong> <span id="show-actual" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
-            <h3 style="color: var(--primary-color);">เกรดการประเมิน: <span id="show-grade" style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 5px;">กำลังคำนวณ...</span></h3>
-        </div>
+            <div id="learning" class="content-section active card">
+                <h2>คู่มือการทำงาน (Work Instructions)</h2>
+                <ul>
+                    <li>📄 ขั้นตอนการต้อนรับลูกค้าและนำเสนอสินค้า</li>
+                    <li>📄 การใช้งานระบบหลังบ้านเบื้องต้น</li>
+                    <li>❓ ถาม-ตอบ ปัญหาที่พบบ่อย (Q&A)</li>
+                </ul>
+            </div>
 
-        <div id="commission" class="content-section card">
-            <h2>สรุปรายได้และคอมมิชชั่น</h2>
-            <p style="color: gray;">*ข้อมูลนี้เป็นความลับเฉพาะบุคคล*</p>
-            <p><strong>ยอดขายรวมเดือนนี้:</strong> ฿ <span id="show-sales" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
-            <p><strong>คอมมิชชั่นที่ได้รับ:</strong> ฿ <span id="show-commission" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
-            <hr>
-            <h3 style="color: green;">รายได้สุทธิรวม (ฐานเงินเดือน + คอม): ฿ <span id="show-net">กำลังคำนวณ...</span></h3>
+            <div id="kpi" class="content-section card">
+                <h2>ผลการประเมิน KPI ประจำเดือน</h2>
+                <p><strong>ชื่อพนักงาน:</strong> <span id="show-name" style="color: blue; font-weight: bold;">กำลังดึงข้อมูล...</span></p>
+                <p><strong>ตำแหน่ง:</strong> <span id="show-position" style="color: blue;">กำลังดึงข้อมูล...</span></p>
+                <hr>
+                <p><strong>เป้าหมายที่ตั้งไว้:</strong> <span id="show-target" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
+                <p><strong>ผลงานที่ทำได้:</strong> <span id="show-actual" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
+                <h3 style="color: var(--primary-color);">เกรดการประเมิน: <span id="show-grade" style="background: #2563eb; color: white; padding: 2px 10px; border-radius: 5px;">กำลังคำนวณ...</span></h3>
+            </div>
+
+            <div id="commission" class="content-section card">
+                <h2>สรุปรายได้และคอมมิชชั่น</h2>
+                <p><strong>ยอดขายรวมเดือนนี้:</strong> ฿ <span id="show-sales" style="font-weight: bold;">กำลังดึงข้อมูล...</span></p>
+                <p><strong>คอมมิชชั่นที่ได้รับ:</strong> ฿ <span id="show-commission" style="font-weight: bold; color: green;">กำลังดึงข้อมูล...</span></p>
+                <hr>
+                <h3 style="color: green;">รายได้สุทธิรวม: ฿ <span id="show-net">กำลังคำนวณ...</span></h3>
+            </div>
         </div>
     </div>
 
@@ -82,6 +101,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // นำเข้าเครื่องมือ รปภ. (Authentication) ของ Firebase
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCGgPnt6nsPBmQr_tfxe-11h0lP02fe-CM",
@@ -95,52 +116,83 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app); // ปลุก รปภ. ขึ้นมาทำงาน!
 
+        const loginScreen = document.getElementById('login-screen');
+        const appContainer = document.getElementById('app-container');
+        const errorMsg = document.getElementById('login-error');
+
+        // ฟังก์ชันดึงข้อมูลพนักงาน (ยังดึงแฟ้มคุณฐิติชญาน์อยู่ค่ะ)
         async function fetchEmployeeData() {
             try {
-                // ไปดึงแฟ้มพนักงานของคุณฐิติชญาน์
                 const docRef = doc(db, "employees", "AO-002001");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    
-                    // 1. ใส่ข้อมูลพื้นฐาน
                     document.getElementById("show-name").innerText = data.name || "-";
                     document.getElementById("show-position").innerText = data.position || "-";
                     
-                    // 2. ใส่ข้อมูล KPI
                     const target = data.kpi_target || 0;
                     const actual = data.kpi_actual || 0;
                     document.getElementById("show-target").innerText = target + " %";
                     document.getElementById("show-actual").innerText = actual + " %";
                     
-                    // สูตรคำนวณเกรดอัตโนมัติสไตล์เอย (คิดจาก % ความสำเร็จ)
                     let successRate = target > 0 ? (actual / target) * 100 : 0;
                     let grade = "C";
                     if (successRate >= 95) grade = "A";
                     else if (successRate >= 80) grade = "B";
                     document.getElementById("show-grade").innerText = grade;
                     
-                    // 3. ใส่ข้อมูลรายได้และการจัดฟอร์แมตตัวเลข (ใส่ลูกน้ำ)
                     const sales = data.total_sales || 0;
                     const comm = data.commission || 0;
-                    const baseSalary = 15000; // สมมติเงินเดือนฐานไว้ 15,000 บาท สามารถปรับแก้ในตู้เซฟได้วันหลังค่ะ
+                    const baseSalary = 15000;
                     
                     document.getElementById("show-sales").innerText = sales.toLocaleString('th-TH');
                     document.getElementById("show-commission").innerText = comm.toLocaleString('th-TH');
                     document.getElementById("show-net").innerText = (baseSalary + comm).toLocaleString('th-TH');
-                    
-                    console.log("เอยอัปเดตตัวเลขขึ้นหน้าจอให้พี่ท็อปเรียบร้อยแล้วค่ะ!");
-                } else {
-                    console.log("หาแฟ้มไม่เจอ รหัสผิดหรือเปล่านะ?");
                 }
             } catch (error) {
-                console.error("มีปัญหาตอนดึงข้อมูลตัวเลขค่ะ: ", error);
+                console.error("มีปัญหาตอนดึงข้อมูล: ", error);
             }
         }
 
-        fetchEmployeeData();
+        // --- ระบบเช็กว่าล็อกอินอยู่หรือเปล่า ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // ถ้ามีบัตรผ่าน: ซ่อนหน้า Login โชว์หน้าเว็บหลัก แล้วดูดข้อมูล
+                loginScreen.style.display = 'none';
+                appContainer.style.display = 'flex';
+                fetchEmployeeData(); 
+            } else {
+                // ถ้าไม่มีบัตรผ่าน: โชว์แต่หน้า Login ซ่อนหน้าเว็บหลัก
+                loginScreen.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        });
+
+        // --- คำสั่งตอนกดปุ่ม "เข้าสู่ระบบ" ---
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const email = document.getElementById('email-input').value;
+            const password = document.getElementById('password-input').value;
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    errorMsg.style.display = 'none'; // ล็อกอินสำเร็จ ซ่อนข้อความเตือน
+                })
+                .catch((error) => {
+                    errorMsg.style.display = 'block'; // ล็อกอินพลาด โชว์ตัวแดงเตือน
+                    console.error("ล็อกอินไม่ผ่าน: ", error.message);
+                });
+        });
+
+        // --- คำสั่งตอนกดปุ่ม "ออกจากระบบ" (ปุ่มสีแดงมุมขวาบน) ---
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                document.getElementById('email-input').value = '';
+                document.getElementById('password-input').value = '';
+            });
+        });
     </script>
 </body>
 </html>
