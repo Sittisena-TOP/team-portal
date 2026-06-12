@@ -3,16 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sale K.T.M. Steel - Team Portal 2.0</title>
+    <title>Sales Team Portal 2.0 - KTM STEEL</title>
     <style>
         :root { --primary-color: #2563eb; --secondary-color: #11caa0; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
         body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); height: 100vh; overflow: hidden; display: flex; }
         
-        #login-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: flex; justify-content: center; align-items: center; background-color: var(--sidebar-color); }
-        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 320px; text-align: center; }
-        .login-input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .login-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        /* หน้าจอ Login & Register */
+        #auth-screen { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: flex; justify-content: center; align-items: center; background-color: var(--sidebar-color); }
+        .auth-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 340px; text-align: center; }
+        .auth-input, .auth-select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        .auth-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .auth-link { color: var(--primary-color); font-size: 14px; cursor: pointer; margin-top: 15px; display: inline-block; text-decoration: underline; }
         
+        #login-box { display: block; }
+        #register-box { display: none; }
+        
+        /* หน้าจอรออนุมัติ (Pending Screen) */
+        #pending-screen { display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 999; justify-content: center; align-items: center; background-color: #f8fafc; flex-direction: column; }
+        .pending-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #f59e0b; }
+
+        /* โครงสร้างหลักเว็บ */
         #app-container { display: none; width: 100%; height: 100vh; display: flex; }
         .sidebar { width: 260px; background-color: var(--sidebar-color); color: white; padding: 20px; box-sizing: border-box; flex-shrink: 0; overflow-y: auto; }
         .sidebar h2 { text-align: center; font-size: 20px; margin-bottom: 25px; border-bottom: 1px solid #475569; padding-bottom: 10px; }
@@ -28,10 +38,10 @@
 
         .category-container { margin-bottom: 30px; }
         .category-title { font-size: 18px; color: var(--primary-color); border-left: 5px solid var(--primary-color); padding-left: 15px; margin-bottom: 15px; background: #eff6ff; padding: 10px; border-radius: 0 8px 8px 0; font-weight: bold;}
-        .manual-item { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .manual-item { background: #fff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .manual-item img { max-width: 100%; border-radius: 6px; margin-top: 15px; border: 1px solid #e2e8f0; }
         
-        .admin-tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; flex-wrap: wrap; }
+        .admin-tab-container { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
         .tab-btn { padding: 8px 15px; cursor: pointer; border-radius: 5px; border: 1px solid #ddd; background: #f8fafc; font-size: 14px; }
         .tab-btn.active { background: var(--sidebar-color); color: white; border-color: var(--sidebar-color); }
         .admin-sub-section { display: none; }
@@ -39,49 +49,85 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         .form-input, .form-select, .form-textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        .save-btn { background: var(--secondary-color); color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s;}
+        .save-btn { background: var(--secondary-color); color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
         
-        /* สไตล์ตารางรายชื่อ Admin */
-        .admin-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 6px; overflow: hidden; }
+        .admin-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border-radius: 6px; overflow: hidden; font-size: 14px; }
         .admin-table th, .admin-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
         .admin-table th { background: #f1f5f9; font-weight: bold; }
-        .delete-role-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .delete-role-btn:hover { background: #dc2626; }
+        .approve-btn { background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-card">
-            <h2 style="color: #1e293b;">🧑‍💻 SALE K.T.M.</h2>
-            <p style="color: #64748b;">Team Portal 2.0</p>
-            <input type="email" id="email-input" class="login-input" placeholder="อีเมลพนักงาน">
-            <input type="password" id="password-input" class="login-input" placeholder="รหัสผ่าน">
-            <button id="btn-login" class="login-btn">เข้าสู่ระบบ</button>
+    <div id="auth-screen">
+        <div class="auth-card" id="login-box">
+            <h2 style="color: #1e293b;">🧑‍💻 KTM Team Portal</h2>
+            <p style="color: #64748b;">เข้าสู่ระบบจัดการทีมขาย</p>
+            <input type="email" id="login-email" class="auth-input" placeholder="อีเมลพนักงาน">
+            <input type="password" id="login-password" class="auth-input" placeholder="รหัสผ่าน">
+            <button id="btn-login" class="auth-btn">เข้าสู่ระบบ</button>
             <p id="login-error" style="color: red; font-size: 13px; display: none; margin-top: 10px;">อีเมลหรือรหัสผ่านไม่ถูกต้อง!</p>
+            <span class="auth-link" onclick="toggleAuthMode('register')">ยังไม่มีบัญชี? สมัครสมาชิกใหม่ที่นี่</span>
+        </div>
+        
+        <div class="auth-card" id="register-box">
+            <h2 style="color: #1e293b;">✨ สมัครสมาชิกใหม่</h2>
+            <p style="color: #64748b;">กรุณาเลือกตำแหน่งของท่านตามจริง</p>
+            <input type="email" id="reg-email" class="auth-input" placeholder="อีเมลพนักงาน">
+            <input type="password" id="reg-password" class="auth-input" placeholder="รหัสผ่าน (6 ตัวขึ้นไป)">
+            
+            <select id="reg-position" class="auth-select">
+                <option value="" disabled selected>-- เลือกตำแหน่งพนักงาน --</option>
+                <option value="ผู้จัดการ">1. ผู้จัดการ</option>
+                <option value="รองผู้จัดการ">2. รองผู้จัดการ</option>
+                <option value="เซลล์ หน้าร้าน">3. เซลล์ หน้าร้าน</option>
+                <option value="เซลล์ เครดิต">4. เซลล์ เครดิต</option>
+                <option value="เซลล์ job shop">5. เซลล์ job shop</option>
+                <option value="เซลล์ online">6. เซลล์ online</option>
+                <option value="เซลล์ ทดลองงาน">7. เซลล์ ทดลองงาน</option>
+            </select>
+            
+            <button id="btn-register" class="auth-btn" style="background: #10b981;">ส่งข้อมูลสมัครสมาชิก</button>
+            <span class="auth-link" onclick="toggleAuthMode('login')">มีบัญชีอยู่แล้ว? กลับไปหน้าเข้าสู่ระบบ</span>
+        </div>
+    </div>
+
+    <div id="pending-screen">
+        <div class="pending-card">
+            <h1 style="font-size: 40px; margin: 0;">⏳</h1>
+            <h2 style="color: #f59e0b; margin-bottom: 10px;">ระบบกำลังตรวจสอบข้อมูล</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">บัญชีของคุณส่งเรื่องไปยังผู้จัดการเรียบร้อยแล้วค่ะ<br>กรุณารอผู้จัดการอนุมัติสิทธิ์เข้าใช้งานระบบตามระดับตำแหน่ง</p>
+            <button id="btn-logout-pending" style="background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
         </div>
     </div>
 
     <div id="app-container">
         <div class="sidebar">
-            <h2>📦 KTM STEEL</h2>
-            <div class="menu-group-label">ข้อมูลส่วนตัว</div>
-            <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
-            <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
+            <h2>📦 KTM PORTAL</h2>
+            
+            <div id="menu-group-personal" style="display: none;">
+                <div class="menu-group-label">ข้อมูลส่วนตัว</div>
+                <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล (KPI)</button>
+                <button class="menu-btn" onclick="showSection('commission')">💰 รายได้ & คอมมิชชั่น</button>
+            </div>
+            
             <div class="menu-group-label">ศูนย์การเรียนรู้</div>
             <button class="menu-btn active" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
             <button class="menu-btn" onclick="showSection('quizzes')">📝 แบบทดสอบ (Quiz)</button>
             
             <div id="admin-menu-group" style="display: none;">
                 <div class="menu-group-label">ระบบจัดการ</div>
-                <button class="menu-btn" id="menu-btn-admin" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
+                <button class="menu-btn" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
             </div>
         </div>
 
         <div class="main-content">
             <div class="header">
                 <h3 id="user-display">ยินดีต้อนรับ</h3>
-                <button id="btn-logout" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+                <div>
+                    <span id="role-badge" style="background: #e2e8f0; color: #475569; padding: 5px 10px; border-radius: 20px; font-size: 12px; margin-right: 15px; font-weight: bold;">...</span>
+                    <button id="btn-logout" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">ออกจากระบบ</button>
+                </div>
             </div>
 
             <div id="learning" class="content-section active card">
@@ -89,22 +135,31 @@
                 <div id="learning-content-display"></div>
             </div>
 
-            <div id="kpi" class="content-section card">
-                <h2>🎯 ผลการประเมิน KPI ประจำเดือน</h2>
-                <p>ชื่อ: <span id="show-name" style="font-weight: bold; color: var(--primary-color);">...</span></p>
-                <p>ยอดขาย: <span id="show-sales">...</span></p>
-            </div>
-            
-            <div id="commission" class="content-section card"><h2>💰 รายได้</h2><p>กำลังโหลด...</p></div>
+            <div id="kpi" class="content-section card"><h2>🎯 ผล KPI</h2><p>กำลังโหลดข้อมูล...</p></div>
+            <div id="commission" class="content-section card"><h2>💰 คอมมิชชั่น</h2><p>กำลังโหลดข้อมูล...</p></div>
             <div id="quizzes" class="content-section card"><h2>📝 แบบทดสอบ</h2><p>Coming soon...</p></div>
 
             <div id="admin" class="content-section card" style="border-top: 5px solid #ef4444;">
-                <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ ระบบจัดการหลังบ้าน</h2>
+                <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ ระบบจัดการหลังบ้าน (บอสใหญ่)</h2>
                 
                 <div class="admin-tab-container">
+                    <div class="tab-btn active" onclick="switchAdminTab('tab-roles', this); fetchAdminList();">👑 ตรวจสอบและอนุมัติสิทธิ์</div>
                     <div class="tab-btn" onclick="switchAdminTab('tab-kpi', this)">ตัวเลขพนักงาน</div>
                     <div class="tab-btn" onclick="switchAdminTab('tab-learning', this)">คลังเรียนรู้งาน</div>
-                    <div class="tab-btn active" onclick="switchAdminTab('tab-roles', this); fetchAdminList();" style="border-color: #ef4444; color: #ef4444;">👑 จัดการสิทธิ์ Admin</div>
+                </div>
+
+                <div id="tab-roles" class="admin-sub-section active">
+                    <h4 style="color: #d97706;">📋 รายชื่อพนักงานใหม่ที่ส่งเรื่องขออนุมัติ</h4>
+                    <table class="admin-table" style="margin-bottom: 30px;">
+                        <thead><tr><th>อีเมลพนักงาน</th><th>ตำแหน่งที่เค้าเลือกสมัคร</th><th>อนุมัติสิทธิ์เป็นตำแหน่ง</th><th>จัดการ</th></tr></thead>
+                        <tbody id="pending-list-table-body"></tbody>
+                    </table>
+
+                    <h4>✅ รายชื่อพนักงานปัจจุบันในระบบ</h4>
+                    <table class="admin-table">
+                        <thead><tr><th>อีเมลพนักงาน</th><th>ระดับสิทธิ์ปัจจุบัน</th><th>จัดการสิทธิ์</th></tr></thead>
+                        <tbody id="admin-list-table-body"></tbody>
+                    </table>
                 </div>
 
                 <div id="tab-kpi" class="admin-sub-section">
@@ -114,45 +169,8 @@
                 </div>
 
                 <div id="tab-learning" class="admin-sub-section">
-                    <div class="form-group">
-                        <label>หมวดหมู่บทเรียน:</label>
-                        <select id="adm-learn-cat" class="form-select">
-                            <option value="identity">รู้จัก เค.ที.เอ็ม. สตีล</option>
-                            <option value="product">เรียนรู้เรื่องเหล็กและสินค้า</option>
-                            <option value="technical">เรียนรู้เครื่องมือวัดและมาตรฐาน</option>
-                            <option value="sales">เรียนรู้การขายและการเป็นที่ปรึกษา</option>
-                            <option value="teamwork">การจัดการปัญหาและทำงานเป็นทีม</option>
-                            <option value="summary">บทสรุปและคำศัพท์</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>หัวข้อบทเรียน:</label><input type="text" id="adm-learn-title" class="form-input"></div>
-                    <div class="form-group"><label>เนื้อหา:</label><textarea id="adm-learn-content" class="form-textarea" rows="6"></textarea></div>
-                    <div class="form-group"><label>แนบรูปภาพประกอบ:</label><input type="file" id="adm-learn-image" class="form-input" accept="image/*"></div>
-                    <button class="save-btn" id="btn-save-learning" style="background: var(--primary-color);">💾 บันทึกบทเรียนลงระบบ</button>
-                </div>
-
-                <div id="tab-roles" class="admin-sub-section active">
-                    <div style="background: #fff5f5; padding: 15px; border-radius: 6px; border-left: 4px solid #ef4444; margin-bottom: 20px;">
-                        <h4 style="margin: 0 0 10px 0; color: #c53030;">👑 เพิ่มผู้ดูแลระบบคนใหม่</h4>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="email" id="adm-new-admin-email" class="form-input" placeholder="ใส่อีเมลพนักงาน เช่น user@ktmsteel.com" style="flex: 1;">
-                            <button class="save-btn" id="btn-save-admin-role" style="background: #ef4444; width: auto; margin-top: 0; padding: 0 20px;">แต่งตั้งเป็น Admin</button>
-                        </div>
-                    </div>
-
-                    <h4>📋 รายชื่อผู้ดูแลระบบในปัจจุบัน</h4>
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>อีเมลผู้ดูแลระบบ</th>
-                                <th>ระดับสิทธิ์</th>
-                                <th>จัดการสิทธิ์</th>
-                            </tr>
-                        </thead>
-                        <tbody id="admin-list-table-body">
-                            <tr><td colspan="3" style="color: gray; text-align: center;">กำลังโหลดรายชื่อผู้ดูแลระบบ...</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="form-group"><label>หัวข้อ:</label><input type="text" id="adm-learn-title" class="form-input"></div>
+                    <button class="save-btn" id="btn-save-learning">💾 บันทึกบทเรียน</button>
                 </div>
             </div>
         </div>
@@ -160,10 +178,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        // เอยเพิ่มคำสั่ง deleteDoc เข้ามาเพื่อใช้ทลายสิทธิ์ค่ะบอส!
-        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyCGgPnt6nsPBmQr_tfxe-11h0lP02fe-CM",
@@ -178,13 +194,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        const storage = getStorage(app);
+
+        window.toggleAuthMode = (mode) => {
+            document.getElementById('login-box').style.display = mode === 'login' ? 'block' : 'none';
+            document.getElementById('register-box').style.display = mode === 'register' ? 'block' : 'none';
+        };
 
         window.showSection = (id) => {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            event.target.classList.add('active');
+            if(event && event.target) event.target.classList.add('active');
         };
 
         window.switchAdminTab = (tabId, btn) => {
@@ -194,137 +214,155 @@
             btn.classList.add('active');
         };
 
-        // --- ฟังก์ชันดึงรายชื่อ Admin ทั้งหมดมาโชว์ในตารางเว็บ ---
+        // --- ระบบดึงรายชื่ออนุมัติสิทธิ์แบบโชว์ตำแหน่งที่ขอมา ---
         async function fetchAdminList() {
-            const tbody = document.getElementById("admin-list-table-body");
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:gray;">กำลังเรียกดูรายชื่อ...</td></tr>`;
+            const pendingTbody = document.getElementById("pending-list-table-body");
+            const activeTbody = document.getElementById("admin-list-table-body");
+            pendingTbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">กำลังโหลดรายชื่อ...</td></tr>`;
+            activeTbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">กำลังโหลดรายชื่อ...</td></tr>`;
             
             try {
                 const snap = await getDocs(collection(db, "user_roles"));
-                tbody.innerHTML = "";
-                
-                if(snap.empty) {
-                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:gray;">ไม่มีรายชื่อ Admin อื่นเลยค่ะนอกจากพี่ท็อป</td></tr>`;
-                    return;
-                }
+                pendingTbody.innerHTML = ""; activeTbody.innerHTML = "";
+                let hasPending = false, hasActive = false;
 
                 snap.forEach((roleDoc) => {
-                    const emailId = roleDoc.id; // ดึงอีเมลที่เป็นชื่อเอกสาร
+                    const emailId = roleDoc.id;
                     const data = roleDoc.data();
                     
-                    if(data.role === "admin") {
-                        const rowHtml = `
+                    if(data.role === "pending") {
+                        hasPending = true;
+                        // ดึงตำแหน่งที่ลูกทีมกดเลือกมาโชว์ในตารางให้พี่ท็อปเห็นชัดๆ ค่ะ!
+                        const reqPos = data.requestedPosition || "ไม่ได้ระบุ";
+                        
+                        pendingTbody.innerHTML += `
                             <tr>
-                                <td style="font-weight: bold; color: #334155;">${emailId}</td>
-                                <td><span style="background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Manager / Admin</span></td>
+                                <td style="font-weight: bold;">${emailId}</td>
+                                <td style="color: #b45309; font-weight: bold;">📌 ${reqPos}</td>
                                 <td>
-                                    <button class="delete-role-btn" data-email="${emailId}">❌ ปลดจาก Admin</button>
+                                    <select id="role-select-${emailId}" class="form-input" style="padding: 5px; margin:0;">
+                                        <option value="ผู้จัดการ" ${reqPos === 'ผู้จัดการ' ? 'selected' : ''}>1. ผู้จัดการ (Admin)</option>
+                                        <option value="รองผู้จัดการ" ${reqPos === 'รองผู้จัดการ' ? 'selected' : ''}>2. รองผู้จัดการ</option>
+                                        <option value="เซลล์ หน้าร้าน" ${reqPos === 'เซลล์ หน้าร้าน' ? 'selected' : ''}>3. เซลล์ หน้าร้าน</option>
+                                        <option value="เซลล์ เครดิต" ${reqPos === 'เซลล์ เครดิต' ? 'selected' : ''}>4. เซลล์ เครดิต</option>
+                                        <option value="เซลล์ job shop" ${reqPos === 'เซลล์ job shop' ? 'selected' : ''}>5. เซลล์ job shop</option>
+                                        <option value="เซลล์ online" ${reqPos === 'เซลล์ online' ? 'selected' : ''}>6. เซลล์ online</option>
+                                        <option value="เซลล์ ทดลองงาน" ${reqPos === 'เซลล์ ทดลองงาน' ? 'selected' : ''}>7. เซลล์ ทดลองงาน</option>
+                                    </select>
                                 </td>
+                                <td><button class="approve-btn" onclick="approveUser('${emailId}')">✅ อนุมัติ</button></td>
                             </tr>
                         `;
-                        tbody.innerHTML += rowHtml;
+                    } else {
+                        hasActive = true;
+                        activeTbody.innerHTML += `
+                            <tr>
+                                <td style="font-weight: bold;">${emailId}</td>
+                                <td><span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 5px; font-weight: bold;">${data.role}</span></td>
+                                <td><button onclick="removeUserRole('${emailId}')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">เตะออก</button></td>
+                            </tr>
+                        `;
                     }
                 });
 
-                // ผูกปุ่มลบสิทธิ์ให้กับทุกลิสต์ในตาราง
-                document.querySelectorAll('.delete-role-btn').forEach(button => {
-                    button.addEventListener('click', async (e) => {
-                        const targetEmail = e.target.getAttribute('data-email');
-                        
-                        // ระบบป้องกันพี่ท็อปเผลอกดลบตัวเอง
-                        if(targetEmail === auth.currentUser.email) {
-                            alert("บอสคะ! จะกดลบสิทธิ์ตัวเองไม่ได้น้า เดี๋ยวล็อกบ้านตัวเองเข้าไม่ได้นะคะ! 🤣");
-                            return;
-                        }
+                if(!hasPending) pendingTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:gray;">ไม่มีพนักงานใหม่รออนุมัติค่ะบอส</td></tr>`;
+                if(!hasActive) activeTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:gray;">ไม่มีพนักงานในระบบ</td></tr>`;
+            } catch (e) { console.error(e); }
+        }
+        window.fetchAdminList = fetchAdminList;
 
-                        if(confirm(`พี่ท็อปแน่ใจนะจ๊ะ ว่าจะปลดสิทธิ์ Admin ของคุณ ${targetEmail}?`)) {
-                            // สั่งทำลายเอกสารสิทธิ์ในตู้เซฟทันที!
-                            await deleteDoc(doc(db, "user_roles", targetEmail));
-                            alert("ปลดสิทธิ์เรียบร้อยแล้วค่ะ!");
-                            fetchAdminList(); // รีเฟรชตารางทันที
-                        }
-                    });
-                });
-
-            } catch (error) {
-                console.error(error);
-                tbody.innerHTML = `<tr><td colspan="3" style="color:red;">โหลดรายชื่อไม่สำเร็จค่ะ</td></tr>`;
+        window.approveUser = async (email) => {
+            const selectedRole = document.getElementById(`role-select-${email}`).value;
+            if(confirm(`ยืนยันการเซ็นอนุมัติสิทธิ์คุณ ${email} เป็นตำแหน่ง [${selectedRole}] หรือไม่คะบอส?`)) {
+                // เซฟตำแหน่งจริงลงในตู้เซฟ
+                await setDoc(doc(db, "user_roles", email), { role: selectedRole, updatedAt: new Date() }, { merge: true });
+                alert("เปิดสิทธิ์ให้พนักงานเรียบร้อยแล้วค่ะ!");
+                fetchAdminList();
             }
-        }
-        window.fetchAdminList = fetchAdminList; // เปิดสิทธิ์ให้ UI เรียกใช้ได้
+        };
 
-        // --- โค้ดดึงคลังเรียนรู้งานเดิม ---
-        const cats = { identity: "1. รู้จัก เค.ที.เอ็ม. สตีล", product: "2. เรียนรู้เรื่องเหล็กและสินค้า", technical: "3. เรียนรู้เครื่องมือวัดและมาตรฐาน", sales: "4. เรียนรู้การขายและการเป็นที่ปรึกษา", teamwork: "5. การจัดการปัญหาและทำงานเป็นทีม", summary: "6. บทสรุปและคำศัพท์" };
-        async function fetchLearningPortal() {
-            const container = document.getElementById("learning-content-display"); container.innerHTML = "";
-            const q = query(collection(db, "learning_materials"), orderBy("createdAt", "asc"));
-            const snap = await getDocs(q); const grouped = {};
-            snap.forEach(doc => { const data = doc.data(); const cat = data.category || "summary"; if(!grouped[cat]) grouped[cat] = []; grouped[cat].push(data); });
-            Object.keys(cats).forEach(key => {
-                if(grouped[key]) {
-                    let section = `<div class="category-container"><div class="category-title">${cats[key]}</div>`;
-                    grouped[key].forEach(item => {
-                        const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" alt="ภาพประกอบ">` : "";
-                        section += `<div class="manual-item"><strong style="font-size: 16px; color: #1e293b;">${item.title}</strong><p style="font-size:14px; color:#475569; margin-top:8px; white-space:pre-line; line-height: 1.6;">${item.content}</p>${imgHtml}</div>`;
-                    });
-                    section += `</div>`; container.innerHTML += section;
-                }
-            });
-        }
+        window.removeUserRole = async (email) => {
+            if(email === auth.currentUser.email) return alert("บอสลบสิทธิ์ตัวเองไม่ได้น้า เดี๋ยวเปิดตึกไม่ได้ค่ะ!");
+            if(confirm(`เตะคุณ ${email} กลับห้องกักตัวรออนุมัติใหม่?`)) {
+                await setDoc(doc(db, "user_roles", email), { role: "pending" }, { merge: true });
+                fetchAdminList();
+            }
+        };
 
-        // --- ระบบสแกนสิทธิ์เข้าใช้งานเว็บ ---
+        // --- ระบบดักจับบัตรสิทธิ์ตอนล็อกอิน ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-container').style.display = 'flex';
-                document.getElementById('user-display').innerText = `สวัสดีค่ะ คุณ ${user.email.split('@')[0]}`;
+                document.getElementById('auth-screen').style.display = 'none';
                 
                 const roleSnap = await getDoc(doc(db, "user_roles", user.email));
-                const adminMenuGroup = document.getElementById('admin-menu-group');
+                let userRole = "pending";
+                if (roleSnap.exists()) userRole = roleSnap.data().role;
+
+                const pendingScreen = document.getElementById('pending-screen');
+                const appContainer = document.getElementById('app-container');
+                const adminMenu = document.getElementById('admin-menu-group');
+                const personalMenu = document.getElementById('menu-group-personal');
+                const roleBadge = document.getElementById('role-badge');
                 
-                if (roleSnap.exists() && roleSnap.data().role === "admin") {
-                    adminMenuGroup.style.display = 'block';
-                    fetchAdminList(); // ถ้าผ่านสิทธิ์เข้ามา ให้โหลดตารางรายชื่อ Admin มารอเลย
+                document.getElementById('user-display').innerText = `คุณ ${user.email.split('@')[0]}`;
+
+                if (userRole === "pending") {
+                    pendingScreen.style.display = 'flex';
+                    appContainer.style.display = 'none';
                 } else {
-                    adminMenuGroup.style.display = 'none';
-                    if (document.getElementById('admin').classList.contains('active')) showSection('learning');
+                    pendingScreen.style.display = 'none';
+                    appContainer.style.display = 'flex';
+                    roleBadge.innerText = userRole.toUpperCase();
+
+                    // แยกสายสิทธิ์การเข้าถึงเมนูตาม 7 ตำแหน่งที่พี่ท็อปตั้งมาค่ะ
+                    if (userRole === "ผู้จัดการ" || userRole === "admin") {
+                        adminMenu.style.display = 'block';
+                        personalMenu.style.display = 'block';
+                        fetchAdminList();
+                    } else if (userRole === "รองผู้จัดการ") {
+                        adminMenu.style.display = 'block'; // รองผู้จัดการเอยให้สิทธิ์เข้าดูหน้าแอดมินแก้ไขข้อมูลพนักงานได้ค่ะ
+                        personalMenu.style.display = 'block';
+                    } else if (userRole === "เซลล์ ทดลองงาน") {
+                        adminMenu.style.display = 'none';
+                        personalMenu.style.display = 'none'; // เด็กฝึกงานซ่อนยอดรวมคอมมิชชั่นกับ KPI หลักไว้ก่อน ให้ดูได้แค่คลังเรียนรู้!
+                        showSection('learning');
+                    } else {
+                        // สำหรับ เซลล์หน้าร้าน, เครดิต, job shop, online ยุคพี่ใหญ่ ดูข้อมูลส่วนตัวและคอมมิชชั่นตัวเองได้ปกติค่ะ
+                        adminMenu.style.display = 'none';
+                        personalMenu.style.display = 'block';
+                        showSection('learning');
+                    }
                 }
-                fetchLearningPortal();
             } else {
-                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('app-container').style.display = 'none';
+                document.getElementById('pending-screen').style.display = 'none';
             }
         });
 
+        // --- ปุ่มทำงานเบื้องหลัง ---
         document.getElementById('btn-login').addEventListener('click', () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email-input').value, document.getElementById('password-input').value).catch(() => document.getElementById('login-error').style.display='block');
+            signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value)
+                .catch(() => document.getElementById('login-error').style.display='block');
         });
+
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const position = document.getElementById('reg-position').value;
+
+            if(!position) return alert("พี่ท็อปดักสคริปต์ไว้แล้วน้า กรุณาเลือกตำแหน่งของตัวเองก่อนสมัครค่ะ!");
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                // แนบตำแหน่งความต้องการ (requestedPosition) ส่งไปเก็บในตู้เซฟรอรอบอสมาเซ็นต์ชื่ออนุมัติ
+                await setDoc(doc(db, "user_roles", email), { role: "pending", requestedPosition: position, addedAt: new Date() });
+                alert("ส่งข้อมูลสมัครสมาชิกสำเร็จ! กรุณารอผู้จัดการเปิดระบบให้ใช้งานนะคะ");
+            } catch(e) { document.getElementById('reg-error').style.display='block'; }
+        });
+
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
-
-        // --- บันทึกบทเรียนลงระบบ ---
-        document.getElementById('btn-save-learning').addEventListener('click', async () => {
-            const btn = document.getElementById('btn-save-learning'); const cat = document.getElementById('adm-learn-cat').value; const title = document.getElementById('adm-learn-title').value; const content = document.getElementById('adm-learn-content').value; const file = document.getElementById('adm-learn-image').files[0];
-            if(!title || !content) return alert("กรอกหัวข้อและเนื้อหาให้ครบก่อนนะคะ!");
-            btn.innerText = "⏳ กำลังบันทึก..."; btn.disabled = true;
-            try {
-                let finalImageUrl = "";
-                if (file) { const fileRef = ref(storage, 'learning_images/' + Date.now() + '_' + file.name); await uploadBytes(fileRef, file); finalImageUrl = await getDownloadURL(fileRef); }
-                await setDoc(doc(collection(db, "learning_materials")), { category: cat, title: title, content: content, imageUrl: finalImageUrl, createdAt: new Date() });
-                alert("บันทึกสำเร็จ!"); document.getElementById('adm-learn-title').value = ""; document.getElementById('adm-learn-content').value = ""; document.getElementById('adm-learn-image').value = ""; fetchLearningPortal();
-            } catch (e) { console.error(e); } finally { btn.innerText = "💾 บันทึกบทเรียนลงระบบ"; btn.disabled = false; }
-        });
-
-        // --- แต่งตั้ง Admin เพิ่ม ---
-        document.getElementById('btn-save-admin-role').addEventListener('click', async () => {
-            const email = document.getElementById('adm-new-admin-email').value;
-            if(!email) return alert("กรอกอีเมลก่อนนะคะพี่ท็อป!");
-            try {
-                await setDoc(doc(db, "user_roles", email), { role: "admin", addedAt: new Date() });
-                alert(`แต่งตั้งคุณ ${email} เป็น Admin สำเร็จ! 👑`);
-                document.getElementById('adm-new-admin-email').value = "";
-                fetchAdminList(); // โหลดตารางใหม่ให้เห็นรายชื่อทันที
-            } catch (e) { alert("เกิดข้อผิดพลาดค่ะ"); }
-        });
+        document.getElementById('btn-logout-pending').addEventListener('click', () => signOut(auth));
     </script>
 </body>
 </html>
