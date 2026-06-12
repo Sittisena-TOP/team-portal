@@ -103,13 +103,13 @@
             <h2>📦 KTM PORTAL</h2>
             <div id="menu-group-personal" style="display: none;">
                 <div class="menu-group-label">ข้อมูลผลงานส่วนตัว</div>
-                <button class="menu-btn active" onclick="showSection('kpi')">🎯 ประเมินผล & แดชบอร์ด</button>
+                <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล & แดชบอร์ด</button>
             </div>
             <div class="menu-group-label">ศูนย์การเรียนรู้</div>
             <button class="menu-btn" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
             <div id="admin-menu-group" style="display: none;">
                 <div class="menu-group-label">ระบบควบคุมนโยบาย</div>
-                <button class="menu-btn" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
+                <button class="menu-btn active" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
             </div>
         </div>
 
@@ -123,7 +123,7 @@
             </div>
 
             <!-- Dashboard เซลส์ส่วนบุคคล -->
-            <div id="kpi" class="content-section active card">
+            <div id="kpi" class="content-section card">
                 <h2>🎯 สรุปผลการดำเนินงานส่วนบุคคล</h2>
                 <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
                     <div style="flex: 1; min-width: 250px; background: #f8fafc; padding: 20px; border-radius: 8px;">
@@ -146,7 +146,7 @@
             </div>
 
             <!-- หน้าจอ Admin ระดับพระเจ้า -->
-            <div id="admin" class="content-section card" style="border-top: 5px solid #ef4444;">
+            <div id="admin" class="content-section active card" style="border-top: 5px solid #ef4444;">
                 <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ แผงควบคุมระบบหลังบ้าน (บอสใหญ่)</h2>
                 
                 <div class="admin-tab-container">
@@ -248,12 +248,10 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // ตัวแปรเก็บกราฟไม่ให้มันวาดซ้อนกัน
         let userChart = null;
         let companyOverviewChart = null;
         let topSalesChart = null;
         
-        // ตัวแปรเก็บเป้าหมายหลักในหน่วยความจำ
         let baseTargets = {
             "เซลล์ หน้าร้าน": 0, "เซลล์ เครดิต": 0, "เซลล์ job shop": 0, "เซลล์ online": 0
         };
@@ -272,7 +270,6 @@
             btn.classList.add('active');
         };
 
-        // --- ระบบดึงเป้าหมายรวม (Base Targets) จากตู้เซฟ ---
         async function fetchBaseTargets() {
             const snap = await getDoc(doc(db, "settings", "targets"));
             if(snap.exists()) {
@@ -284,7 +281,6 @@
             }
         }
 
-        // หน้าแอดมิน: โหลดเป้าหมายมาโชว์ในช่องกรอก
         window.loadBaseTargets = async () => {
             await fetchBaseTargets();
             document.getElementById('target-store').value = baseTargets["เซลล์ หน้าร้าน"];
@@ -293,7 +289,6 @@
             document.getElementById('target-online').value = baseTargets["เซลล์ online"];
         };
 
-        // หน้าแอดมิน: บันทึกเป้าหมายกลับเข้าตู้เซฟ
         document.getElementById('btn-save-targets').addEventListener('click', async () => {
             await setDoc(doc(db, "settings", "targets"), {
                 store: Number(document.getElementById('target-store').value),
@@ -303,12 +298,11 @@
                 updatedAt: new Date()
             });
             alert("บันทึกเป้าหมายหลักของบริษัทสำเร็จแล้วค่ะ!");
-            fetchBaseTargets(); // โหลดเข้าหน่วยความจำใหม่
+            fetchBaseTargets(); 
         });
 
-        // --- ระบบคำนวณและโชว์ Dashboard ส่วนบุคคล ---
         async function fetchEmployeeDashboard(email) {
-            await fetchBaseTargets(); // โหลดเป้าหมายทีมก่อน
+            await fetchBaseTargets(); 
             const snap = await getDoc(doc(db, "employees", email));
             
             let name = "-", pos = "-", actualSales = 0, targetSales = 0, kpi = 0;
@@ -317,11 +311,7 @@
                 const d = snap.data();
                 name = d.name || "-"; pos = d.position || "-";
                 actualSales = d.actual_sales || 0;
-                
-                // ค้นหาเป้าหมายจากตำแหน่งของพนักงาน
                 targetSales = baseTargets[pos] || 0;
-                
-                // คำนวณ KPI อัตโนมัติ (กันบักหารด้วย 0)
                 if(targetSales > 0) {
                     kpi = ((actualSales / targetSales) * 100).toFixed(1);
                 }
@@ -333,17 +323,16 @@
             document.getElementById("show-actual-sales").innerText = actualSales.toLocaleString();
             document.getElementById("show-kpi-percent").innerText = kpi + "%";
 
-            // วาดกราฟวงกลมส่วนตัว
             const ctx = document.getElementById('userKpiChart').getContext('2d');
             if(userChart) userChart.destroy();
             
             let kpiNum = Number(kpi);
             let remaining = 100 - kpiNum;
-            if (remaining < 0) remaining = 0; // ทะลุเป้าแล้ว
+            if (remaining < 0) remaining = 0; 
 
             let color = '#11caa0';
-            if (kpiNum >= 100) color = '#2563eb'; // ทะลุเป้าเป็นสีน้ำเงิน
-            else if (kpiNum < 50) color = '#ef4444'; // ต่ำครึ่งสีแดงเตือน
+            if (kpiNum >= 100) color = '#2563eb'; 
+            else if (kpiNum < 50) color = '#ef4444'; 
 
             userChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -355,12 +344,10 @@
             });
         }
 
-        // --- ระบบ Dashboard ภาพรวมบริษัท (บอสใหญ่) ---
         window.loadTeamDashboard = async () => {
             await fetchBaseTargets();
             const snap = await getDocs(collection(db, "employees"));
             
-            // เตรียมกล่องใส่ข้อมูลแยก 4 แผนก
             let teamData = {
                 "เซลล์ หน้าร้าน": { actual: 0, count: 0 },
                 "เซลล์ เครดิต": { actual: 0, count: 0 },
@@ -368,7 +355,7 @@
                 "เซลล์ online": { actual: 0, count: 0 }
             };
 
-            let allSalesList = []; // เก็บจัดอันดับ Top Sale
+            let allSalesList = []; 
 
             snap.forEach(doc => {
                 const d = doc.data();
@@ -383,7 +370,6 @@
                 }
             });
 
-            // 1. วาดกราฟเปรียบเทียบทีม (Company Overview)
             const labelsTeam = ["หน้าร้าน", "เครดิต", "Job Shop", "Online"];
             const dataActual = [teamData["เซลล์ หน้าร้าน"].actual, teamData["เซลล์ เครดิต"].actual, teamData["เซลล์ job shop"].actual, teamData["เซลล์ online"].actual];
             const dataTarget = [
@@ -407,9 +393,8 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 2. วาดกราฟ Top Sales (เรียงอันดับจากมากไปน้อย)
             allSalesList.sort((a, b) => b.sales - a.sales);
-            let top5 = allSalesList.slice(0, 5); // เอาแค่ 5 อันดับแรก
+            let top5 = allSalesList.slice(0, 5); 
 
             const ctxTop = document.getElementById('topSalesChart').getContext('2d');
             if(topSalesChart) topSalesChart.destroy();
@@ -419,12 +404,11 @@
                     labels: top5.map(s => s.name),
                     datasets: [{ label: 'ยอดขายส่วนตัว', data: top5.map(s => s.sales), backgroundColor: '#10b981', borderRadius: 4 }]
                 },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } // กราฟแนวนอน
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } 
             });
         };
 
-        // --- ระบบหน้าจอคีย์ยอดขายลูกทีม (Auto-Calc) ---
-        let currentEditingRole = ""; // จำตำแหน่งลูกทีมที่เลือกอยู่
+        let currentEditingRole = ""; 
 
         window.loadEmployeeDropdown = async () => {
             await fetchBaseTargets();
@@ -447,21 +431,18 @@
             const email = select.value;
             if(!email) return;
 
-            // ดึงตำแหน่ง (Role) จาก option ที่เลือก
             currentEditingRole = select.options[select.selectedIndex].getAttribute('data-role');
             const target = baseTargets[currentEditingRole] || 0;
             document.getElementById("adm-show-target").innerText = `฿ ${target.toLocaleString()}`;
 
-            // ดึงยอดขายเดิมที่เคยทำไว้ขึ้นมาโชว์
             const snap = await getDoc(doc(db, "employees", email));
             let actual = 0;
             if(snap.exists()) actual = snap.data().actual_sales || 0;
             
             document.getElementById("adm-actual-sales").value = actual;
-            previewKpi(); // คำนวณ KPI โชว์ทันที
+            previewKpi(); 
         };
 
-        // ฟังก์ชันคำนวณ KPI โชว์สดๆ ตอนพี่ท็อปพิมพ์ตัวเลข
         window.previewKpi = () => {
             const actual = Number(document.getElementById("adm-actual-sales").value) || 0;
             const target = baseTargets[currentEditingRole] || 0;
@@ -470,23 +451,56 @@
             document.getElementById("adm-show-kpi").innerText = `${kpi}%`;
         };
 
-        // ปุ่มบันทึกยอดขาย
         document.getElementById('btn-save-kpi').addEventListener('click', async () => {
             const email = document.getElementById("adm-emp-select").value;
             if(!email) return alert("เลือกชื่อลูกทีมก่อนนะคะบอส!");
             
             const actual = Number(document.getElementById("adm-actual-sales").value) || 0;
-            
-            // อัปเดตเฉพาะยอดขาย (เป้าหมายอยู่ในฐานหลักแล้ว)
             await setDoc(doc(db, "employees", email), { actual_sales: actual }, { merge: true });
             alert(`อัปเดตยอดขายและคำนวณ KPI ให้ ${email} สำเร็จแล้วค่ะ!`);
         });
 
-        // --- (โค้ดจัดการสิทธิ์ Admin ดั้งเดิม เอยย่อไว้นะคะ) ---
-        async function fetchAdminList() { /* โค้ดเดิมดึงคนรออนุมัติ */ }
+        async function fetchAdminList() {
+            const pBody = document.getElementById("pending-list-table-body");
+            const aBody = document.getElementById("admin-list-table-body");
+            pBody.innerHTML = "<tr><td>กำลังโหลด...</td></tr>"; aBody.innerHTML = "<tr><td>กำลังโหลด...</td></tr>";
+            
+            const snap = await getDocs(collection(db, "user_roles"));
+            pBody.innerHTML = ""; aBody.innerHTML = "";
+            let pCount = 0, aCount = 0;
+
+            snap.forEach(roleDoc => {
+                const email = roleDoc.id; const d = roleDoc.data();
+                if(d.role === "pending") {
+                    pCount++;
+                    const req = d.requestedPosition || "เซลล์ ทดลองงาน";
+                    pBody.innerHTML += `<tr><td><b>${email}</b></td><td style='color:#b45309;'>📌 ขอสมัครตำแหน่ง: ${req}</td><td><select id="sel-${email}" class='form-select' style='padding:5px; margin:0;'><option value="ผู้จัดการ" ${req==='ผู้จัดการ'?'selected':''}>1. ผู้จัดการ</option><option value="รองผู้จัดการ" ${req==='รองผู้จัดการ'?'selected':''}>2. รองผู้จัดการ</option><option value="เซลล์ หน้าร้าน" ${req==='เซลล์ หน้าร้าน'?'selected':''}>3. เซลล์ หน้าร้าน</option><option value="เซลล์ เครดิต" ${req==='เซลล์ เครดิต'?'selected':''}>4. เซลล์ เครดิต</option><option value="เซลล์ job shop" ${req==='เซลล์ job shop'?'selected':''}>5. เซลล์ job shop</option><option value="เซลล์ online" ${req==='เซลล์ online'?'selected':''}>6. เซลล์ online</option><option value="เซลล์ ทดลองงาน" ${req==='เซลล์ ทดลองงาน'?'selected':''}>7. เซลล์ ทดลองงาน</option></select></td><td><button class='approve-btn' onclick="approveUser('${email}')">อนุมัติ</button></td></tr>`;
+                } else {
+                    aCount++;
+                    aBody.innerHTML += `<tr><td><b>${email}</b></td><td><span style='background:#dbeafe; color:#1e40af; padding:3px 8px; border-radius:4px; font-weight:bold;'>${d.role}</span></td><td><button onclick="removeUserRole('${email}')" style='background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;'>ริบสิทธิ์</button></td></tr>`;
+                }
+            });
+            if(pCount===0) pBody.innerHTML = "<tr><td colspan='4' style='color:gray;'>ไม่มีพนักงานใหม่รออนุมัติค่ะบอส</td></tr>";
+            if(aCount===0) aBody.innerHTML = "<tr><td colspan='3' style='color:gray;'>ไม่มีพนักงานในระบบ</td></tr>";
+        }
         window.fetchAdminList = fetchAdminList;
 
-        // --- สแกนสิทธิ์ตอนเข้า ---
+        window.approveUser = async (email) => {
+            const role = document.getElementById(`sel-${email}`).value;
+            if(confirm(`อนุมัติให้คุณ ${email} เข้าใช้งานในสิทธิ์ [${role}]?`)) {
+                await setDoc(doc(db, "user_roles", email), { role: role, updatedAt: new Date() }, { merge: true });
+                await setDoc(doc(db, "employees", email), { name: email.split('@')[0], position: role, kpi_target: 100, actual_sales:0 }, { merge: true });
+                alert("เปิดประตูสิทธิ์เรียบร้อยค่ะ!"); fetchAdminList();
+            }
+        };
+
+        window.removeUserRole = async (email) => {
+            if(email === auth.currentUser.email) return alert("บอสลบตัวเองไม่ได้นะคะ!");
+            if(confirm(`เตะคุณ ${email} กลับห้องกักตัว?`)) {
+                await setDoc(doc(db, "user_roles", email), { role: "pending" }, { merge: true }); fetchAdminList();
+            }
+        };
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('auth-screen').style.display = 'none';
@@ -507,8 +521,11 @@
                     pendingScreen.style.display = 'none'; appContainer.style.display = 'flex';
                     roleBadge.innerText = userRole.toUpperCase();
 
+                    // เปิดเมนู personalMenu คืนให้บอสแล้วนะคะ!
                     if (userRole === "ผู้จัดการ" || userRole === "admin" || userRole === "รองผู้จัดการ") {
-                        roleBadge.style.color = "#ef4444"; adminMenu.style.display = 'block'; personalMenu.style.display = 'none';
+                        roleBadge.style.color = "#ef4444"; 
+                        adminMenu.style.display = 'block'; 
+                        personalMenu.style.display = 'block'; 
                         showSection('admin'); loadTeamDashboard();
                     } else if (userRole === "เซลล์ ทดลองงาน") {
                         roleBadge.style.color = "#16a34a"; adminMenu.style.display = 'none'; personalMenu.style.display = 'none';
@@ -523,9 +540,8 @@
             }
         });
 
-        // --- ปุ่มทำงานเบื้องหลัง ---
         document.getElementById('btn-login').addEventListener('click', () => { signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value).catch(() => document.getElementById('login-error').style.display='block'); });
-        document.getElementById('btn-register').addEventListener('click', async () => { /* สมัครสมาชิกเหมือนเดิม */ });
+        document.getElementById('btn-register').addEventListener('click', async () => { /* ... */ });
         document.getElementById('btn-logout').addEventListener('click', () => signOut(auth).then(()=>window.location.reload()));
         document.getElementById('btn-logout-pending').addEventListener('click', () => signOut(auth).then(()=>window.location.reload()));
     </script>
