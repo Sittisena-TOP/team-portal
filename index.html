@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KTM STEEL - Smart Dashboard 3.0</title>
-    <!-- อัญเชิญคาถาสร้างกราฟ Chart.js -->
+    <title>KTM STEEL - Smart Dashboard 3.1</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary-color: #2563eb; --secondary-color: #11caa0; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
@@ -45,7 +44,6 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; color: #1e293b;}
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        .form-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         .save-btn { background: var(--secondary-color); color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
         .chart-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
@@ -102,14 +100,15 @@
         <div class="sidebar">
             <h2>📦 KTM PORTAL</h2>
             <div id="menu-group-personal" style="display: none;">
-                <div class="menu-group-label">ข้อมูลผลงานส่วนตัว</div>
-                <button class="menu-btn" onclick="showSection('kpi')">🎯 ประเมินผล & แดชบอร์ด</button>
+                <div class="menu-group-label">ข้อมูลผลงานบริษัท</div>
+                <!-- กดปุ่มนี้แล้วให้โหลดกราฟทีมใหม่เพื่อความชัวร์ด้วยค่ะ -->
+                <button class="menu-btn active" onclick="showSection('kpi'); loadTeamDashboard();">📊 แดชบอร์ด & ประเมินผล</button>
             </div>
             <div class="menu-group-label">ศูนย์การเรียนรู้</div>
             <button class="menu-btn" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
             <div id="admin-menu-group" style="display: none;">
-                <div class="menu-group-label">ระบบควบคุมนโยบาย</div>
-                <button class="menu-btn active" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
+                <div class="menu-group-label">ห้องควบคุมหลังบ้าน</div>
+                <button class="menu-btn" onclick="showSection('admin')" style="color: #f87171;">⚙️ ผู้จัดการ (Admin)</button>
             </div>
         </div>
 
@@ -122,10 +121,12 @@
                 </div>
             </div>
 
-            <!-- Dashboard เซลส์ส่วนบุคคล -->
-            <div id="kpi" class="content-section card">
-                <h2>🎯 สรุปผลการดำเนินงานส่วนบุคคล</h2>
-                <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center;">
+            <!-- หน้า Dashboard โฉมใหม่ (รวมทั้งของเซลส์และของทีมไว้ที่นี่เลย!) -->
+            <div id="kpi" class="content-section active card">
+                <h2>📊 แดชบอร์ดประเมินผลยอดขาย</h2>
+                
+                <!-- กล่องนี้โชว์เฉพาะเซลส์ ถ้าเป็นบอสเอยจะซ่อนไว้ค่ะ -->
+                <div id="individual-kpi-container" style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center; margin-bottom: 40px;">
                     <div style="flex: 1; min-width: 250px; background: #f8fafc; padding: 20px; border-radius: 8px;">
                         <p style="font-size: 18px; margin-top:0;"><strong>ชื่อ:</strong> <span id="show-name" style="color: var(--primary-color); font-weight: bold;">-</span></p>
                         <p><strong>แผนก:</strong> <span id="show-position">-</span></p>
@@ -138,6 +139,19 @@
                         <canvas id="userKpiChart"></canvas>
                     </div>
                 </div>
+
+                <!-- กราฟผลประกอบการ 4 แผนก ย้ายมาโชว์ตรงนี้แล้วค่ะ! -->
+                <h3 style="color:#1e293b; border-left: 5px solid var(--primary-color); padding-left:10px;">🏆 สถิติยอดขายรวม 4 แผนกหลักของบริษัท</h3>
+                <div class="chart-grid">
+                    <div class="chart-box" style="flex: 2;">
+                        <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">💰 สัดส่วนยอดขายรวมแยกตามแผนก (Company Overview)</h4>
+                        <canvas id="companyOverviewChart" style="max-height: 350px;"></canvas>
+                    </div>
+                    <div class="chart-box" style="flex: 1;">
+                        <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">🌟 Top Sales ยอดเยี่ยมประจำเดือน</h4>
+                        <canvas id="topSalesChart" style="max-height: 350px;"></canvas>
+                    </div>
+                </div>
             </div>
 
             <div id="learning" class="content-section card">
@@ -145,49 +159,18 @@
                 <div id="learning-content-display"><p style="color: gray;">กำลังเปิดคัมภีร์ข้อมูล...</p></div>
             </div>
 
-            <!-- หน้าจอ Admin ระดับพระเจ้า -->
-            <div id="admin" class="content-section active card" style="border-top: 5px solid #ef4444;">
-                <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ แผงควบคุมระบบหลังบ้าน (บอสใหญ่)</h2>
+            <!-- หน้าจอ Admin (เปลี่ยนเป็นห้องคีย์ตัวเลขอย่างเดียว) -->
+            <div id="admin" class="content-section card" style="border-top: 5px solid #ef4444;">
+                <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ ห้องควบคุมระบบหลังบ้าน (Data Control Room)</h2>
                 
                 <div class="admin-tab-container">
-                    <div class="tab-btn active" onclick="switchAdminTab('tab-dashboard', this); loadTeamDashboard();">📊 ภาพรวมบริษัท (Dashboard)</div>
+                    <div class="tab-btn active" onclick="switchAdminTab('tab-kpi', this); loadEmployeeDropdown();">✍️ กรอกยอดขายลูกทีม</div>
                     <div class="tab-btn" onclick="switchAdminTab('tab-targets', this); loadBaseTargets();">🎯 ตั้งเป้าหมายแยกทีม</div>
-                    <div class="tab-btn" onclick="switchAdminTab('tab-kpi', this); loadEmployeeDropdown();">✍️ กรอกยอดขายลูกทีม</div>
                     <div class="tab-btn" onclick="switchAdminTab('tab-roles', this); fetchAdminList();">👑 อนุมัติสิทธิ์พนักงาน</div>
                 </div>
 
-                <!-- 1. แท็บ Dashboard รวมบริษัท -->
-                <div id="tab-dashboard" class="admin-sub-section active">
-                    <h3 style="color:#1e293b; border-left: 5px solid var(--primary-color); padding-left:10px;">📊 Dashboard ผลประกอบการ 4 แผนกหลัก</h3>
-                    <div class="chart-grid">
-                        <div class="chart-box" style="flex: 2;">
-                            <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">💰 สัดส่วนยอดขายรวมแยกตามแผนก (Company Overview)</h4>
-                            <canvas id="companyOverviewChart" style="max-height: 350px;"></canvas>
-                        </div>
-                        <div class="chart-box" style="flex: 1;">
-                            <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">🏆 Top Sales ยอดเยี่ยมประจำเดือน</h4>
-                            <canvas id="topSalesChart" style="max-height: 350px;"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 2. แท็บตั้งเป้าหมายทีม (อัปเดตครั้งเดียว) -->
-                <div id="tab-targets" class="admin-sub-section">
-                    <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <h4 style="margin:0 0 15px 0; color: #b45309;">🎯 กำหนดเป้าหมายยอดขายประจำเดือน "ต่อคน" ของแต่ละแผนก</h4>
-                        <p style="font-size: 13px; color: gray; margin-bottom: 20px;">*ตัวเลขนี้จะถูกนำไปใช้หารยอดขายจริงเพื่อคำนวณ % KPI ให้พนักงานอัตโนมัติ</p>
-                        
-                        <div class="target-box"><b>3. เซลล์ หน้าร้าน</b> <div>฿ <input type="number" id="target-store" value="0"></div></div>
-                        <div class="target-box"><b>4. เซลล์ เครดิต</b> <div>฿ <input type="number" id="target-credit" value="0"></div></div>
-                        <div class="target-box"><b>5. เซลล์ job shop</b> <div>฿ <input type="number" id="target-jobshop" value="0"></div></div>
-                        <div class="target-box"><b>6. เซลล์ online</b> <div>฿ <input type="number" id="target-online" value="0"></div></div>
-                        
-                        <button class="save-btn" id="btn-save-targets" style="background: #b45309; margin-top: 20px;">💾 บันทึกเป้าหมายของทีม</button>
-                    </div>
-                </div>
-
-                <!-- 3. แท็บกรอกยอดขาย (คำนวณอัตโนมัติ) -->
-                <div id="tab-kpi" class="admin-sub-section">
+                <!-- 1. แท็บกรอกยอดขาย (ตอนนี้เป็นแท็บแรกสุดของบอสแล้วค่ะ) -->
+                <div id="tab-kpi" class="admin-sub-section active">
                     <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
                         <h4 style="margin:0 0 15px 0; color: var(--primary-color);">✍️ ฟอร์มอัปเดตยอดขายรายบุคคล</h4>
                         <p style="font-size: 13px; color: gray;">*เพียงแค่บอสกรอกยอดที่ทำได้ ระบบจะคำนวณ KPI ให้เองค่ะ</p>
@@ -213,11 +196,26 @@
                             <input type="number" id="adm-actual-sales" class="form-input" style="font-size: 18px; font-weight:bold; border-color:#16a34a;" oninput="previewKpi()">
                         </div>
                         
-                        <button class="save-btn" id="btn-save-kpi">💾 บันทึกยอดขายและสร้าง Dashboard</button>
+                        <button class="save-btn" id="btn-save-kpi">💾 บันทึกยอดขายเข้าระบบ</button>
                     </div>
                 </div>
 
-                <!-- 4. แท็บอนุมัติสิทธิ์ (เหมือนเดิม) -->
+                <!-- 2. แท็บตั้งเป้าหมายทีม -->
+                <div id="tab-targets" class="admin-sub-section">
+                    <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                        <h4 style="margin:0 0 15px 0; color: #b45309;">🎯 กำหนดเป้าหมายยอดขายประจำเดือน "ต่อคน" ของแต่ละแผนก</h4>
+                        <p style="font-size: 13px; color: gray; margin-bottom: 20px;">*ตัวเลขนี้จะถูกนำไปใช้หารยอดขายจริงเพื่อคำนวณ % KPI ให้พนักงานอัตโนมัติ</p>
+                        
+                        <div class="target-box"><b>3. เซลล์ หน้าร้าน</b> <div>฿ <input type="number" id="target-store" value="0"></div></div>
+                        <div class="target-box"><b>4. เซลล์ เครดิต</b> <div>฿ <input type="number" id="target-credit" value="0"></div></div>
+                        <div class="target-box"><b>5. เซลล์ job shop</b> <div>฿ <input type="number" id="target-jobshop" value="0"></div></div>
+                        <div class="target-box"><b>6. เซลล์ online</b> <div>฿ <input type="number" id="target-online" value="0"></div></div>
+                        
+                        <button class="save-btn" id="btn-save-targets" style="background: #b45309; margin-top: 20px;">💾 บันทึกเป้าหมายของทีม</button>
+                    </div>
+                </div>
+
+                <!-- 3. แท็บอนุมัติสิทธิ์ -->
                 <div id="tab-roles" class="admin-sub-section">
                     <h4 style="color: #d97706;">📋 รายชื่อผู้สมัครใหม่รอเปิดระบบ</h4>
                     <table class="admin-table" style="margin-bottom:25px;"><tbody id="pending-list-table-body"></tbody></table>
@@ -440,7 +438,7 @@
             if(snap.exists()) actual = snap.data().actual_sales || 0;
             
             document.getElementById("adm-actual-sales").value = actual;
-            previewKpi(); 
+            window.previewKpi(); 
         };
 
         window.previewKpi = () => {
@@ -457,7 +455,7 @@
             
             const actual = Number(document.getElementById("adm-actual-sales").value) || 0;
             await setDoc(doc(db, "employees", email), { actual_sales: actual }, { merge: true });
-            alert(`อัปเดตยอดขายและคำนวณ KPI ให้ ${email} สำเร็จแล้วค่ะ!`);
+            alert(`อัปเดตยอดขายสำเร็จ! สามารถไปกดรีเฟรชดูในหน้า แดชบอร์ด ได้เลยค่ะ`);
         });
 
         async function fetchAdminList() {
@@ -521,18 +519,23 @@
                     pendingScreen.style.display = 'none'; appContainer.style.display = 'flex';
                     roleBadge.innerText = userRole.toUpperCase();
 
-                    // เปิดเมนู personalMenu คืนให้บอสแล้วนะคะ!
+                    // --- การแยกสิทธิ์โชว์เมนู ---
                     if (userRole === "ผู้จัดการ" || userRole === "admin" || userRole === "รองผู้จัดการ") {
                         roleBadge.style.color = "#ef4444"; 
                         adminMenu.style.display = 'block'; 
-                        personalMenu.style.display = 'block'; 
-                        showSection('admin'); loadTeamDashboard();
+                        personalMenu.style.display = 'block'; // ให้บอสเห็นเมนูแดชบอร์ด
+                        document.getElementById('individual-kpi-container').style.display = 'none'; // ซ่อนกราฟส่วนตัวของบอส (เพราะบอสไม่มี KPI)
+                        showSection('kpi'); // ให้หน้าแรกเป็น Dashboard
+                        loadTeamDashboard(); 
                     } else if (userRole === "เซลล์ ทดลองงาน") {
                         roleBadge.style.color = "#16a34a"; adminMenu.style.display = 'none'; personalMenu.style.display = 'none';
                         showSection('learning');
                     } else {
                         roleBadge.style.color = "#2563eb"; adminMenu.style.display = 'none'; personalMenu.style.display = 'block';
-                        showSection('kpi'); fetchEmployeeDashboard(user.email);
+                        document.getElementById('individual-kpi-container').style.display = 'flex'; // เซลส์ต้องเห็น KPI ส่วนตัว
+                        showSection('kpi'); 
+                        fetchEmployeeDashboard(user.email);
+                        loadTeamDashboard(); // ให้เซลส์เห็นภาพรวมทีมด้วยเพื่อกระตุ้นไฟ!
                     }
                 }
             } else {
