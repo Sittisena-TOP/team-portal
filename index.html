@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KTM STEEL - Smart Dashboard 3.1</title>
+    <title>KTM STEEL - Commission System 3.2</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary-color: #2563eb; --secondary-color: #11caa0; --sidebar-color: #1e293b; --bg-color: #f1f5f9; --text-color: #333; }
@@ -46,11 +46,11 @@
         .form-input, .form-select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
         .save-btn { background: var(--secondary-color); color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
 
-        .chart-grid { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-        .chart-box { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; flex: 1; min-width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        
-        .target-box { background: #eff6ff; padding: 15px; border-radius: 8px; border: 1px solid #bfdbfe; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .target-box input { width: 150px; padding: 8px; border-radius: 4px; border: 1px solid #93c5fd; }
+        /* กล่องกรอกยอดแยกประเภท */
+        .sales-input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .sales-box { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .sales-box input { width: 100%; padding: 10px; border: 1px solid #94a3b8; border-radius: 4px; font-size: 16px; margin-top: 5px; box-sizing: border-box; text-align: right;}
+        .total-box { background: #dcfce7; padding: 15px; border-radius: 8px; border: 2px solid #22c55e; display: flex; justify-content: space-between; align-items: center;}
     </style>
 </head>
 <body>
@@ -74,11 +74,14 @@
                 <option value="" disabled selected>-- เลือกแผนก/ตำแหน่ง --</option>
                 <option value="ผู้จัดการ">1. ผู้จัดการ</option>
                 <option value="รองผู้จัดการ">2. รองผู้จัดการ</option>
-                <option value="เซลล์ หน้าร้าน">3. เซลล์ หน้าร้าน</option>
-                <option value="เซลล์ เครดิต">4. เซลล์ เครดิต</option>
-                <option value="เซลล์ job shop">5. เซลล์ job shop</option>
-                <option value="เซลล์ online">6. เซลล์ online</option>
-                <option value="เซลล์ ทดลองงาน">7. เซลล์ ทดลองงาน</option>
+                <!-- อัปเดตชื่อให้ตรง Excel -->
+                <option value="ขายหน้าร้าน">3. ขายหน้าร้าน</option>
+                <option value="ขายเครดิต">4. ขายเครดิต</option>
+                <option value="ขายออนไลน์">5. ขายออนไลน์</option>
+                <option value="ขาย job shop">6. ขาย job shop</option>
+                <option value="ศาลาลอย">7. ศาลาลอย</option>
+                <option value="ลวดเชื่อม KOBE">8. ลวดเชื่อม KOBE</option>
+                <option value="ทดลองงาน">9. ทดลองงาน</option>
             </select>
             <button id="btn-register" class="auth-btn" style="background: #10b981;">ลงทะเบียน</button>
             <span class="auth-link" onclick="document.getElementById('login-box').style.display='block'; document.getElementById('register-box').style.display='none';">กลับไปหน้าล็อกอิน</span>
@@ -101,8 +104,7 @@
             <h2>📦 KTM PORTAL</h2>
             <div id="menu-group-personal" style="display: none;">
                 <div class="menu-group-label">ข้อมูลผลงานบริษัท</div>
-                <!-- กดปุ่มนี้แล้วให้โหลดกราฟทีมใหม่เพื่อความชัวร์ด้วยค่ะ -->
-                <button class="menu-btn active" onclick="showSection('kpi'); loadTeamDashboard();">📊 แดชบอร์ด & ประเมินผล</button>
+                <button class="menu-btn active" onclick="showSection('kpi');">📊 แดชบอร์ด & ประเมินผล</button>
             </div>
             <div class="menu-group-label">ศูนย์การเรียนรู้</div>
             <button class="menu-btn" onclick="showSection('learning')">📚 คลังเรียนรู้งาน</button>
@@ -121,35 +123,29 @@
                 </div>
             </div>
 
-            <!-- หน้า Dashboard โฉมใหม่ (รวมทั้งของเซลส์และของทีมไว้ที่นี่เลย!) -->
+            <!-- Dashboard โชว์ตัวเลข (รออัปเดตกราฟ Step หลังบอสส่งสูตรมาค่ะ) -->
             <div id="kpi" class="content-section active card">
                 <h2>📊 แดชบอร์ดประเมินผลยอดขาย</h2>
                 
-                <!-- กล่องนี้โชว์เฉพาะเซลส์ ถ้าเป็นบอสเอยจะซ่อนไว้ค่ะ -->
-                <div id="individual-kpi-container" style="display: flex; gap: 30px; flex-wrap: wrap; align-items: center; margin-bottom: 40px;">
-                    <div style="flex: 1; min-width: 250px; background: #f8fafc; padding: 20px; border-radius: 8px;">
-                        <p style="font-size: 18px; margin-top:0;"><strong>ชื่อ:</strong> <span id="show-name" style="color: var(--primary-color); font-weight: bold;">-</span></p>
-                        <p><strong>แผนก:</strong> <span id="show-position">-</span></p>
-                        <hr style="border-color: #e2e8f0; margin: 15px 0;">
-                        <p>เป้าหมายแผนก (ต่อคน): ฿<span id="show-target" style="font-weight: bold; color:#b45309;">0</span></p>
-                        <p>ยอดขายที่ทำได้จริง: ฿<span id="show-actual-sales" style="font-weight: bold; color: #16a34a; font-size: 20px;">0</span></p>
-                        <p>คิดเป็น KPI: <span id="show-kpi-percent" style="font-weight: bold; color: #2563eb; font-size: 20px;">0%</span></p>
+                <div id="individual-kpi-container" style="background: #f8fafc; padding: 25px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
+                    <h3 style="margin-top:0; color: var(--primary-color);">ข้อมูลยอดขายรายบุคคล: <span id="show-name"></span> (<span id="show-position"></span>)</h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <p style="color: gray; margin:0 0 5px 0;">เหล็กและฮาร์ดแวร์</p>
+                            <h3 style="margin:0; color: #b45309;">฿ <span id="show-sales-steel">0</span></h3>
+                        </div>
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <p style="color: gray; margin:0 0 5px 0;">งานผลิต</p>
+                            <h3 style="margin:0; color: #0284c7;">฿ <span id="show-sales-prod">0</span></h3>
+                        </div>
+                        <div style="flex:1; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                            <p style="color: gray; margin:0 0 5px 0;">ลวดเชื่อม</p>
+                            <h3 style="margin:0; color: #7c3aed;">฿ <span id="show-sales-weld">0</span></h3>
+                        </div>
                     </div>
-                    <div style="width: 240px; height: 240px;">
-                        <canvas id="userKpiChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- กราฟผลประกอบการ 4 แผนก ย้ายมาโชว์ตรงนี้แล้วค่ะ! -->
-                <h3 style="color:#1e293b; border-left: 5px solid var(--primary-color); padding-left:10px;">🏆 สถิติยอดขายรวม 4 แผนกหลักของบริษัท</h3>
-                <div class="chart-grid">
-                    <div class="chart-box" style="flex: 2;">
-                        <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">💰 สัดส่วนยอดขายรวมแยกตามแผนก (Company Overview)</h4>
-                        <canvas id="companyOverviewChart" style="max-height: 350px;"></canvas>
-                    </div>
-                    <div class="chart-box" style="flex: 1;">
-                        <h4 style="text-align:center; margin:0 0 10px 0; color:#475569;">🌟 Top Sales ยอดเยี่ยมประจำเดือน</h4>
-                        <canvas id="topSalesChart" style="max-height: 350px;"></canvas>
+                    <div style="margin-top: 15px; padding: 15px; background: #dcfce7; border-radius: 6px; border: 1px solid #86efac; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin:0; color: #166534;">🏆 ยอดขายรวมสุทธิ</h3>
+                        <h2 style="margin:0; color: #15803d; font-size: 28px;">฿ <span id="show-sales-total">0</span></h2>
                     </div>
                 </div>
             </div>
@@ -159,63 +155,52 @@
                 <div id="learning-content-display"><p style="color: gray;">กำลังเปิดคัมภีร์ข้อมูล...</p></div>
             </div>
 
-            <!-- หน้าจอ Admin (เปลี่ยนเป็นห้องคีย์ตัวเลขอย่างเดียว) -->
+            <!-- หน้าจอ Admin -->
             <div id="admin" class="content-section card" style="border-top: 5px solid #ef4444;">
                 <h2 style="color: #ef4444; margin-bottom: 20px;">⚙️ ห้องควบคุมระบบหลังบ้าน (Data Control Room)</h2>
                 
                 <div class="admin-tab-container">
-                    <div class="tab-btn active" onclick="switchAdminTab('tab-kpi', this); loadEmployeeDropdown();">✍️ กรอกยอดขายลูกทีม</div>
-                    <div class="tab-btn" onclick="switchAdminTab('tab-targets', this); loadBaseTargets();">🎯 ตั้งเป้าหมายแยกทีม</div>
+                    <div class="tab-btn active" onclick="switchAdminTab('tab-kpi', this); loadEmployeeDropdown();">✍️ กรอกยอดขายแยกประเภท</div>
+                    <!-- แท็บตั้งเป้าหมาย เอยซ่อนไว้แป๊บนึงนะคะ รอรื้อทำแบบ 3 Steps ค่ะ -->
                     <div class="tab-btn" onclick="switchAdminTab('tab-roles', this); fetchAdminList();">👑 อนุมัติสิทธิ์พนักงาน</div>
                 </div>
 
-                <!-- 1. แท็บกรอกยอดขาย (ตอนนี้เป็นแท็บแรกสุดของบอสแล้วค่ะ) -->
+                <!-- 1. แท็บกรอกยอดขาย (แยก 3 ประเภท!) -->
                 <div id="tab-kpi" class="admin-sub-section active">
                     <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <h4 style="margin:0 0 15px 0; color: var(--primary-color);">✍️ ฟอร์มอัปเดตยอดขายรายบุคคล</h4>
-                        <p style="font-size: 13px; color: gray;">*เพียงแค่บอสกรอกยอดที่ทำได้ ระบบจะคำนวณ KPI ให้เองค่ะ</p>
+                        <h4 style="margin:0 0 15px 0; color: var(--primary-color);">✍️ ฟอร์มอัปเดตยอดขายรายบุคคล (แยกประเภทสินค้า)</h4>
                         
                         <div class="form-group">
                             <label>เลือกลูกทีมที่ต้องการอัปเดต:</label>
                             <select id="adm-emp-select" class="form-select" onchange="onEmployeeSelectChange()"></select>
                         </div>
                         
-                        <div style="display:flex; gap:15px; background: #fff; padding: 15px; border-radius: 6px; border: 1px dashed #ccc; margin-bottom: 15px;">
-                            <div style="flex:1;">
-                                <label style="font-size:12px; color:gray;">เป้าหมายที่ต้องทำ (ดึงจากฐานข้อมูลทีม)</label>
-                                <h3 id="adm-show-target" style="margin:5px 0; color:#b45309;">฿ 0</h3>
+                        <h5 style="color: #475569; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">กรอกยอดขายตามหมวดหมู่ (บาท)</h5>
+                        <div class="sales-input-grid">
+                            <div class="sales-box">
+                                <label style="color:#b45309;">🔩 เหล็กและฮาร์ดแวร์</label>
+                                <input type="number" id="inp-steel" value="0" oninput="calculateTotalInput()">
                             </div>
-                            <div style="flex:1;">
-                                <label style="font-size:12px; color:gray;">ระบบคำนวณ Auto-KPI</label>
-                                <h3 id="adm-show-kpi" style="margin:5px 0; color:#2563eb;">0%</h3>
+                            <div class="sales-box">
+                                <label style="color:#0284c7;">⚙️ งานผลิต</label>
+                                <input type="number" id="inp-prod" value="0" oninput="calculateTotalInput()">
+                            </div>
+                            <div class="sales-box">
+                                <label style="color:#7c3aed;">⚡ ลวดเชื่อม</label>
+                                <input type="number" id="inp-weld" value="0" oninput="calculateTotalInput()">
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label style="color:#16a34a; font-size:16px;">ยอดขายสุทธิที่ทำได้จริง (บาท):</label>
-                            <input type="number" id="adm-actual-sales" class="form-input" style="font-size: 18px; font-weight:bold; border-color:#16a34a;" oninput="previewKpi()">
+                        <div class="total-box">
+                            <h3 style="margin:0; color: #166534;">💰 ยอดขายรวมสุทธิ:</h3>
+                            <h2 style="margin:0; color: #16a34a;" id="display-total-input">฿ 0</h2>
                         </div>
                         
-                        <button class="save-btn" id="btn-save-kpi">💾 บันทึกยอดขายเข้าระบบ</button>
+                        <button class="save-btn" id="btn-save-sales">💾 บันทึกยอดขายเข้าระบบ</button>
                     </div>
                 </div>
 
-                <!-- 2. แท็บตั้งเป้าหมายทีม -->
-                <div id="tab-targets" class="admin-sub-section">
-                    <div style="background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
-                        <h4 style="margin:0 0 15px 0; color: #b45309;">🎯 กำหนดเป้าหมายยอดขายประจำเดือน "ต่อคน" ของแต่ละแผนก</h4>
-                        <p style="font-size: 13px; color: gray; margin-bottom: 20px;">*ตัวเลขนี้จะถูกนำไปใช้หารยอดขายจริงเพื่อคำนวณ % KPI ให้พนักงานอัตโนมัติ</p>
-                        
-                        <div class="target-box"><b>3. เซลล์ หน้าร้าน</b> <div>฿ <input type="number" id="target-store" value="0"></div></div>
-                        <div class="target-box"><b>4. เซลล์ เครดิต</b> <div>฿ <input type="number" id="target-credit" value="0"></div></div>
-                        <div class="target-box"><b>5. เซลล์ job shop</b> <div>฿ <input type="number" id="target-jobshop" value="0"></div></div>
-                        <div class="target-box"><b>6. เซลล์ online</b> <div>฿ <input type="number" id="target-online" value="0"></div></div>
-                        
-                        <button class="save-btn" id="btn-save-targets" style="background: #b45309; margin-top: 20px;">💾 บันทึกเป้าหมายของทีม</button>
-                    </div>
-                </div>
-
-                <!-- 3. แท็บอนุมัติสิทธิ์ -->
+                <!-- 2. แท็บอนุมัติสิทธิ์ (อัปเดตรายชื่อ Dropdown แล้ว) -->
                 <div id="tab-roles" class="admin-sub-section">
                     <h4 style="color: #d97706;">📋 รายชื่อผู้สมัครใหม่รอเปิดระบบ</h4>
                     <table class="admin-table" style="margin-bottom:25px;"><tbody id="pending-list-table-body"></tbody></table>
@@ -246,14 +231,6 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        let userChart = null;
-        let companyOverviewChart = null;
-        let topSalesChart = null;
-        
-        let baseTargets = {
-            "เซลล์ หน้าร้าน": 0, "เซลล์ เครดิต": 0, "เซลล์ job shop": 0, "เซลล์ online": 0
-        };
-
         window.showSection = (id) => {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
@@ -268,196 +245,81 @@
             btn.classList.add('active');
         };
 
-        async function fetchBaseTargets() {
-            const snap = await getDoc(doc(db, "settings", "targets"));
-            if(snap.exists()) {
-                const data = snap.data();
-                baseTargets["เซลล์ หน้าร้าน"] = data.store || 0;
-                baseTargets["เซลล์ เครดิต"] = data.credit || 0;
-                baseTargets["เซลล์ job shop"] = data.jobshop || 0;
-                baseTargets["เซลล์ online"] = data.online || 0;
-            }
-        }
-
-        window.loadBaseTargets = async () => {
-            await fetchBaseTargets();
-            document.getElementById('target-store').value = baseTargets["เซลล์ หน้าร้าน"];
-            document.getElementById('target-credit').value = baseTargets["เซลล์ เครดิต"];
-            document.getElementById('target-jobshop').value = baseTargets["เซลล์ job shop"];
-            document.getElementById('target-online').value = baseTargets["เซลล์ online"];
-        };
-
-        document.getElementById('btn-save-targets').addEventListener('click', async () => {
-            await setDoc(doc(db, "settings", "targets"), {
-                store: Number(document.getElementById('target-store').value),
-                credit: Number(document.getElementById('target-credit').value),
-                jobshop: Number(document.getElementById('target-jobshop').value),
-                online: Number(document.getElementById('target-online').value),
-                updatedAt: new Date()
-            });
-            alert("บันทึกเป้าหมายหลักของบริษัทสำเร็จแล้วค่ะ!");
-            fetchBaseTargets(); 
-        });
-
+        // โหลดข้อมูล Dashboard เซลส์
         async function fetchEmployeeDashboard(email) {
-            await fetchBaseTargets(); 
             const snap = await getDoc(doc(db, "employees", email));
-            
-            let name = "-", pos = "-", actualSales = 0, targetSales = 0, kpi = 0;
             
             if(snap.exists()) {
                 const d = snap.data();
-                name = d.name || "-"; pos = d.position || "-";
-                actualSales = d.actual_sales || 0;
-                targetSales = baseTargets[pos] || 0;
-                if(targetSales > 0) {
-                    kpi = ((actualSales / targetSales) * 100).toFixed(1);
-                }
+                document.getElementById("show-name").innerText = d.name || email.split('@')[0];
+                document.getElementById("show-position").innerText = d.position || "-";
+                
+                // โชว์เลข 3 ประเภท
+                document.getElementById("show-sales-steel").innerText = (d.sales_steel || 0).toLocaleString();
+                document.getElementById("show-sales-prod").innerText = (d.sales_prod || 0).toLocaleString();
+                document.getElementById("show-sales-weld").innerText = (d.sales_weld || 0).toLocaleString();
+                document.getElementById("show-sales-total").innerText = (d.sales_total || 0).toLocaleString();
             }
-            
-            document.getElementById("show-name").innerText = name;
-            document.getElementById("show-position").innerText = pos;
-            document.getElementById("show-target").innerText = targetSales.toLocaleString();
-            document.getElementById("show-actual-sales").innerText = actualSales.toLocaleString();
-            document.getElementById("show-kpi-percent").innerText = kpi + "%";
-
-            const ctx = document.getElementById('userKpiChart').getContext('2d');
-            if(userChart) userChart.destroy();
-            
-            let kpiNum = Number(kpi);
-            let remaining = 100 - kpiNum;
-            if (remaining < 0) remaining = 0; 
-
-            let color = '#11caa0';
-            if (kpiNum >= 100) color = '#2563eb'; 
-            else if (kpiNum < 50) color = '#ef4444'; 
-
-            userChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['KPI ทำได้ (%)', 'เหลืออีก (%)'],
-                    datasets: [{ data: [kpiNum, remaining], backgroundColor: [color, '#e2e8f0'], borderWidth: 0 }]
-                },
-                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-            });
         }
 
-        window.loadTeamDashboard = async () => {
-            await fetchBaseTargets();
-            const snap = await getDocs(collection(db, "employees"));
-            
-            let teamData = {
-                "เซลล์ หน้าร้าน": { actual: 0, count: 0 },
-                "เซลล์ เครดิต": { actual: 0, count: 0 },
-                "เซลล์ job shop": { actual: 0, count: 0 },
-                "เซลล์ online": { actual: 0, count: 0 }
-            };
-
-            let allSalesList = []; 
-
-            snap.forEach(doc => {
-                const d = doc.data();
-                const pos = d.position;
-                const sales = d.actual_sales || 0;
-                const name = d.name || doc.id.split('@')[0];
-
-                if(teamData[pos]) {
-                    teamData[pos].actual += sales;
-                    teamData[pos].count += 1;
-                    allSalesList.push({ name: name, sales: sales, team: pos });
-                }
-            });
-
-            const labelsTeam = ["หน้าร้าน", "เครดิต", "Job Shop", "Online"];
-            const dataActual = [teamData["เซลล์ หน้าร้าน"].actual, teamData["เซลล์ เครดิต"].actual, teamData["เซลล์ job shop"].actual, teamData["เซลล์ online"].actual];
-            const dataTarget = [
-                baseTargets["เซลล์ หน้าร้าน"] * teamData["เซลล์ หน้าร้าน"].count,
-                baseTargets["เซลล์ เครดิต"] * teamData["เซลล์ เครดิต"].count,
-                baseTargets["เซลล์ job shop"] * teamData["เซลล์ job shop"].count,
-                baseTargets["เซลล์ online"] * teamData["เซลล์ online"].count
-            ];
-
-            const ctxOverview = document.getElementById('companyOverviewChart').getContext('2d');
-            if(companyOverviewChart) companyOverviewChart.destroy();
-            companyOverviewChart = new Chart(ctxOverview, {
-                type: 'bar',
-                data: {
-                    labels: labelsTeam,
-                    datasets: [
-                        { label: 'ยอดขายจริงรวม (บาท)', data: dataActual, backgroundColor: '#2563eb', borderRadius: 4 },
-                        { label: 'เป้าหมายรวมของแผนก (บาท)', data: dataTarget, backgroundColor: '#cbd5e1', borderRadius: 4 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            allSalesList.sort((a, b) => b.sales - a.sales);
-            let top5 = allSalesList.slice(0, 5); 
-
-            const ctxTop = document.getElementById('topSalesChart').getContext('2d');
-            if(topSalesChart) topSalesChart.destroy();
-            topSalesChart = new Chart(ctxTop, {
-                type: 'bar',
-                data: {
-                    labels: top5.map(s => s.name),
-                    datasets: [{ label: 'ยอดขายส่วนตัว', data: top5.map(s => s.sales), backgroundColor: '#10b981', borderRadius: 4 }]
-                },
-                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } 
-            });
+        // หน้าแอดมิน: คำนวณยอดรวมโชว์ตอนบอสพิมพ์
+        window.calculateTotalInput = () => {
+            const st = Number(document.getElementById('inp-steel').value) || 0;
+            const pr = Number(document.getElementById('inp-prod').value) || 0;
+            const we = Number(document.getElementById('inp-weld').value) || 0;
+            const total = st + pr + we;
+            document.getElementById('display-total-input').innerText = `฿ ${total.toLocaleString()}`;
         };
 
-        let currentEditingRole = ""; 
-
+        // หน้าแอดมิน: โหลดชื่อลูกทีมลง Dropdown
         window.loadEmployeeDropdown = async () => {
-            await fetchBaseTargets();
             const select = document.getElementById("adm-emp-select");
             select.innerHTML = "<option value=''>-- เลือกลูกทีมที่ต้องการกรอกยอดขาย --</option>";
             const snap = await getDocs(collection(db, "employees"));
             snap.forEach(empDoc => {
                 const email = empDoc.id; const d = empDoc.data();
                 if(d.position !== "ผู้จัดการ" && d.position !== "รองผู้จัดการ" && d.position !== "admin") {
-                    select.innerHTML += `<option value="${email}" data-role="${d.position}">${d.name || email} (${d.position || '-'})</option>`;
+                    select.innerHTML += `<option value="${email}">${d.name || email} (${d.position || '-'})</option>`;
                 }
             });
-            document.getElementById("adm-actual-sales").value = "0";
-            document.getElementById("adm-show-target").innerText = "฿ 0";
-            document.getElementById("adm-show-kpi").innerText = "0%";
+            document.getElementById('inp-steel').value = 0;
+            document.getElementById('inp-prod').value = 0;
+            document.getElementById('inp-weld').value = 0;
+            calculateTotalInput();
         };
 
+        // หน้าแอดมิน: ดึงยอดเก่ามาโชว์ตอนเปลี่ยนชื่อ
         window.onEmployeeSelectChange = async () => {
-            const select = document.getElementById("adm-emp-select");
-            const email = select.value;
+            const email = document.getElementById("adm-emp-select").value;
             if(!email) return;
-
-            currentEditingRole = select.options[select.selectedIndex].getAttribute('data-role');
-            const target = baseTargets[currentEditingRole] || 0;
-            document.getElementById("adm-show-target").innerText = `฿ ${target.toLocaleString()}`;
-
             const snap = await getDoc(doc(db, "employees", email));
-            let actual = 0;
-            if(snap.exists()) actual = snap.data().actual_sales || 0;
-            
-            document.getElementById("adm-actual-sales").value = actual;
-            window.previewKpi(); 
+            if(snap.exists()) {
+                const d = snap.data();
+                document.getElementById('inp-steel').value = d.sales_steel || 0;
+                document.getElementById('inp-prod').value = d.sales_prod || 0;
+                document.getElementById('inp-weld').value = d.sales_weld || 0;
+                calculateTotalInput();
+            }
         };
 
-        window.previewKpi = () => {
-            const actual = Number(document.getElementById("adm-actual-sales").value) || 0;
-            const target = baseTargets[currentEditingRole] || 0;
-            let kpi = 0;
-            if(target > 0) kpi = ((actual / target) * 100).toFixed(1);
-            document.getElementById("adm-show-kpi").innerText = `${kpi}%`;
-        };
-
-        document.getElementById('btn-save-kpi').addEventListener('click', async () => {
+        // ปุ่มเซฟข้อมูลการขาย
+        document.getElementById('btn-save-sales').addEventListener('click', async () => {
             const email = document.getElementById("adm-emp-select").value;
             if(!email) return alert("เลือกชื่อลูกทีมก่อนนะคะบอส!");
             
-            const actual = Number(document.getElementById("adm-actual-sales").value) || 0;
-            await setDoc(doc(db, "employees", email), { actual_sales: actual }, { merge: true });
-            alert(`อัปเดตยอดขายสำเร็จ! สามารถไปกดรีเฟรชดูในหน้า แดชบอร์ด ได้เลยค่ะ`);
+            const st = Number(document.getElementById('inp-steel').value) || 0;
+            const pr = Number(document.getElementById('inp-prod').value) || 0;
+            const we = Number(document.getElementById('inp-weld').value) || 0;
+            const total = st + pr + we;
+
+            await setDoc(doc(db, "employees", email), { 
+                sales_steel: st, sales_prod: pr, sales_weld: we, sales_total: total 
+            }, { merge: true });
+            
+            alert(`บันทึกยอดขาย 3 หมวดหมู่สำเร็จ! ยอดรวมคือ ฿${total.toLocaleString()}`);
         });
 
+        // ระบบอนุมัติสิทธิ์ (อัปเดต Dropdown ใหม่)
         async function fetchAdminList() {
             const pBody = document.getElementById("pending-list-table-body");
             const aBody = document.getElementById("admin-list-table-body");
@@ -471,8 +333,8 @@
                 const email = roleDoc.id; const d = roleDoc.data();
                 if(d.role === "pending") {
                     pCount++;
-                    const req = d.requestedPosition || "เซลล์ ทดลองงาน";
-                    pBody.innerHTML += `<tr><td><b>${email}</b></td><td style='color:#b45309;'>📌 ขอสมัครตำแหน่ง: ${req}</td><td><select id="sel-${email}" class='form-select' style='padding:5px; margin:0;'><option value="ผู้จัดการ" ${req==='ผู้จัดการ'?'selected':''}>1. ผู้จัดการ</option><option value="รองผู้จัดการ" ${req==='รองผู้จัดการ'?'selected':''}>2. รองผู้จัดการ</option><option value="เซลล์ หน้าร้าน" ${req==='เซลล์ หน้าร้าน'?'selected':''}>3. เซลล์ หน้าร้าน</option><option value="เซลล์ เครดิต" ${req==='เซลล์ เครดิต'?'selected':''}>4. เซลล์ เครดิต</option><option value="เซลล์ job shop" ${req==='เซลล์ job shop'?'selected':''}>5. เซลล์ job shop</option><option value="เซลล์ online" ${req==='เซลล์ online'?'selected':''}>6. เซลล์ online</option><option value="เซลล์ ทดลองงาน" ${req==='เซลล์ ทดลองงาน'?'selected':''}>7. เซลล์ ทดลองงาน</option></select></td><td><button class='approve-btn' onclick="approveUser('${email}')">อนุมัติ</button></td></tr>`;
+                    const req = d.requestedPosition || "ทดลองงาน";
+                    pBody.innerHTML += `<tr><td><b>${email}</b></td><td style='color:#b45309;'>📌 ขอตำแหน่ง: ${req}</td><td><select id="sel-${email}" class='form-select' style='padding:5px; margin:0;'><option value="ผู้จัดการ" ${req==='ผู้จัดการ'?'selected':''}>1. ผู้จัดการ</option><option value="รองผู้จัดการ" ${req==='รองผู้จัดการ'?'selected':''}>2. รองผู้จัดการ</option><option value="ขายหน้าร้าน" ${req==='ขายหน้าร้าน'?'selected':''}>3. ขายหน้าร้าน</option><option value="ขายเครดิต" ${req==='ขายเครดิต'?'selected':''}>4. ขายเครดิต</option><option value="ขายออนไลน์" ${req==='ขายออนไลน์'?'selected':''}>5. ขายออนไลน์</option><option value="ขาย job shop" ${req==='ขาย job shop'?'selected':''}>6. ขาย job shop</option><option value="ศาลาลอย" ${req==='ศาลาลอย'?'selected':''}>7. ศาลาลอย</option><option value="ลวดเชื่อม KOBE" ${req==='ลวดเชื่อม KOBE'?'selected':''}>8. ลวดเชื่อม KOBE</option><option value="ทดลองงาน" ${req==='ทดลองงาน'?'selected':''}>9. ทดลองงาน</option></select></td><td><button class='approve-btn' onclick="approveUser('${email}')">อนุมัติ</button></td></tr>`;
                 } else {
                     aCount++;
                     aBody.innerHTML += `<tr><td><b>${email}</b></td><td><span style='background:#dbeafe; color:#1e40af; padding:3px 8px; border-radius:4px; font-weight:bold;'>${d.role}</span></td><td><button onclick="removeUserRole('${email}')" style='background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;'>ริบสิทธิ์</button></td></tr>`;
@@ -485,18 +347,17 @@
 
         window.approveUser = async (email) => {
             const role = document.getElementById(`sel-${email}`).value;
-            if(confirm(`อนุมัติให้คุณ ${email} เข้าใช้งานในสิทธิ์ [${role}]?`)) {
+            if(confirm(`อนุมัติให้คุณ ${email} เป็น [${role}]?`)) {
                 await setDoc(doc(db, "user_roles", email), { role: role, updatedAt: new Date() }, { merge: true });
-                await setDoc(doc(db, "employees", email), { name: email.split('@')[0], position: role, kpi_target: 100, actual_sales:0 }, { merge: true });
+                // สร้างฐานตัวเลขใหม่รองรับ 3 หมวด
+                await setDoc(doc(db, "employees", email), { name: email.split('@')[0], position: role, sales_steel:0, sales_prod:0, sales_weld:0, sales_total:0 }, { merge: true });
                 alert("เปิดประตูสิทธิ์เรียบร้อยค่ะ!"); fetchAdminList();
             }
         };
 
         window.removeUserRole = async (email) => {
             if(email === auth.currentUser.email) return alert("บอสลบตัวเองไม่ได้นะคะ!");
-            if(confirm(`เตะคุณ ${email} กลับห้องกักตัว?`)) {
-                await setDoc(doc(db, "user_roles", email), { role: "pending" }, { merge: true }); fetchAdminList();
-            }
+            if(confirm(`เตะคุณ ${email} กลับห้องกักตัว?`)) { await setDoc(doc(db, "user_roles", email), { role: "pending" }, { merge: true }); fetchAdminList(); }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -519,23 +380,16 @@
                     pendingScreen.style.display = 'none'; appContainer.style.display = 'flex';
                     roleBadge.innerText = userRole.toUpperCase();
 
-                    // --- การแยกสิทธิ์โชว์เมนู ---
                     if (userRole === "ผู้จัดการ" || userRole === "admin" || userRole === "รองผู้จัดการ") {
-                        roleBadge.style.color = "#ef4444"; 
-                        adminMenu.style.display = 'block'; 
-                        personalMenu.style.display = 'block'; // ให้บอสเห็นเมนูแดชบอร์ด
-                        document.getElementById('individual-kpi-container').style.display = 'none'; // ซ่อนกราฟส่วนตัวของบอส (เพราะบอสไม่มี KPI)
-                        showSection('kpi'); // ให้หน้าแรกเป็น Dashboard
-                        loadTeamDashboard(); 
-                    } else if (userRole === "เซลล์ ทดลองงาน") {
-                        roleBadge.style.color = "#16a34a"; adminMenu.style.display = 'none'; personalMenu.style.display = 'none';
-                        showSection('learning');
+                        roleBadge.style.color = "#ef4444"; adminMenu.style.display = 'block'; personalMenu.style.display = 'block'; 
+                        document.getElementById('individual-kpi-container').style.display = 'none';
+                        showSection('admin'); 
+                    } else if (userRole === "ทดลองงาน") {
+                        roleBadge.style.color = "#16a34a"; adminMenu.style.display = 'none'; personalMenu.style.display = 'none'; showSection('learning');
                     } else {
                         roleBadge.style.color = "#2563eb"; adminMenu.style.display = 'none'; personalMenu.style.display = 'block';
-                        document.getElementById('individual-kpi-container').style.display = 'flex'; // เซลส์ต้องเห็น KPI ส่วนตัว
-                        showSection('kpi'); 
-                        fetchEmployeeDashboard(user.email);
-                        loadTeamDashboard(); // ให้เซลส์เห็นภาพรวมทีมด้วยเพื่อกระตุ้นไฟ!
+                        document.getElementById('individual-kpi-container').style.display = 'block';
+                        showSection('kpi'); fetchEmployeeDashboard(user.email);
                     }
                 }
             } else {
